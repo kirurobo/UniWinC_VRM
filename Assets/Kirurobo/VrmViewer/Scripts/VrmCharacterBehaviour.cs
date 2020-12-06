@@ -80,9 +80,9 @@ namespace Kirurobo
         public MotionMode motionMode = MotionMode.Default;
 
         //private float cursorGrabingSqrMagnitude = 0.81f;    // 手の届く距離の2乗（これ以上離れると手を伸ばすことをやめる）
-        private float cursorGrabingSqrMagnitude = 10000f; // 手の届く距離の2乗（これ以上離れると手を伸ばすことをやめる）
-        private float lastRightHandWait = 0f;
-        private float lastLeftHandWait = 0f;
+        private float cursorGrabingSqrMagnitude = 9f; // 手の届く距離の2乗（これ以上離れると手を伸ばすことをやめる）
+        private float lastRightHandWeight = 0f;
+        private float lastLeftHandWeight = 0f;
 
         public bool randomMotion = false; // モーションをランダムにするか
         public bool randomEmotion = true;
@@ -202,8 +202,8 @@ namespace Kirurobo
             Vector3 mousePos = Input.mousePosition;
             //// 奥行きはモデル座標から 1[m] 手前に設定
             //mousePos.z = (currentCamera.transform.position - headTransform.position).magnitude - 1f;
-            // 奥行きはモデル座標とカメラ間の90%と設定
-            mousePos.z = (currentCamera.transform.position - headTransform.position).magnitude * 0.90f;
+            // 奥行きはモデル座標とカメラ間の95%と設定
+            mousePos.z = (currentCamera.transform.position - headTransform.position).magnitude * 0.95f;
             Vector3 pos = currentCamera.ScreenToWorldPoint(mousePos);
             targetObject.transform.position = pos;
         }
@@ -415,12 +415,13 @@ namespace Kirurobo
                     // 右手からの距離が近ければ追従させる
                     if ((sqrDistance < cursorGrabingSqrMagnitude))
                     {
-                        lastRightHandWait = Mathf.Lerp(lastRightHandWait, 0.7f, 0.1f);
+                        //lastRightHandWeight = Mathf.Lerp(lastRightHandWeight, 0.7f, 0.1f);
+                        lastRightHandWeight = Mathf.Lerp(lastRightHandWeight, 1.0f, 0.01f);
 
                         Quaternion handRotation = Quaternion.Euler(-90f, 180f, 0f);
 
                         animator.SetIKPosition(AvatarIKGoal.RightHand, cursorPosition);
-                        animator.SetIKPositionWeight(AvatarIKGoal.RightHand, lastRightHandWait);
+                        animator.SetIKPositionWeight(AvatarIKGoal.RightHand, lastRightHandWeight);
 
                         //animator.SetIKRotation(AvatarIKGoal.RightHand, handRotation);
                         //animator.SetIKRotationWeight(AvatarIKGoal.RightHand, lastRightHandWait);
@@ -440,12 +441,13 @@ namespace Kirurobo
                     // 左手からの距離が近ければ追従させる
                     if ((sqrDistance < cursorGrabingSqrMagnitude))
                     {
-                        lastLeftHandWait = Mathf.Lerp(lastLeftHandWait, 0.7f, 0.1f);
+                        //lastLeftHandWeight = Mathf.Lerp(lastLeftHandWeight, 0.7f, 0.1f);
+                        lastLeftHandWeight = Mathf.Lerp(lastLeftHandWeight, 1.0f, 0.01f);
 
                         //Quaternion handRotation = Quaternion.Euler(-90f, 180f, 0f);
 
                         animator.SetIKPosition(AvatarIKGoal.LeftHand, cursorPosition);
-                        animator.SetIKPositionWeight(AvatarIKGoal.LeftHand, lastLeftHandWait);
+                        animator.SetIKPositionWeight(AvatarIKGoal.LeftHand, lastLeftHandWeight);
 
                         //animator.SetIKRotation(AvatarIKGoal.LeftHand, handRotation);
                         //animator.SetIKRotationWeight(AvatarIKGoal.LeftHand, lastLeftHandWait);
@@ -459,18 +461,18 @@ namespace Kirurobo
             if (!isRightHandMoved)
             {
                 // 右手を戻す
-                lastRightHandWait = Mathf.Lerp(lastRightHandWait, 0.0f, 0.1f);
+                lastRightHandWeight = Mathf.Lerp(lastRightHandWeight, 0.0f, 0.05f);
                 animator.SetIKPosition(AvatarIKGoal.RightHand, cursorPosition);
-                animator.SetIKPositionWeight(AvatarIKGoal.RightHand, lastRightHandWait);
+                animator.SetIKPositionWeight(AvatarIKGoal.RightHand, lastRightHandWeight);
                 //animator.SetIKRotationWeight(AvatarIKGoal.RightHand, lastRightHandWait);
             }
 
             if (!isLeftHandMoved)
             {
                 // 左手を戻す
-                lastLeftHandWait = Mathf.Lerp(lastLeftHandWait, 0.0f, 0.1f);
+                lastLeftHandWeight = Mathf.Lerp(lastLeftHandWeight, 0.0f, 0.05f);
                 animator.SetIKPosition(AvatarIKGoal.LeftHand, cursorPosition);
-                animator.SetIKPositionWeight(AvatarIKGoal.LeftHand, lastLeftHandWait);
+                animator.SetIKPositionWeight(AvatarIKGoal.LeftHand, lastLeftHandWeight);
                 //animator.SetIKRotationWeight(AvatarIKGoal.LeftHand, lastLeftHandWait);
 
             }

@@ -12,6 +12,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using VRM;
 using Kirurobo;
+using SFB;
 
 namespace Kirurobo
 {
@@ -112,6 +113,22 @@ namespace Kirurobo
                 {
                     uiController.openButton.onClick.AddListener(() =>
                     {
+                        var extensions = new [] {
+                            new ExtensionFilter("All supported files", "vrm", "bvh", "ogg", "wav" ),
+                            new ExtensionFilter("VRM files", "vrm" ),
+                            new ExtensionFilter("Motion files", "bvh" ),
+                            new ExtensionFilter("Audio files", "ogg", "wav" ),
+                            new ExtensionFilter("All files", "*" ),
+                        };
+                        StandaloneFileBrowser.OpenFilePanelAsync(
+                            "Open",
+                            "",
+                            extensions,
+                            false,
+                            (path)=>
+                            {
+                                LoadFile(path[0]);
+                            });
                         //string path = windowController.ShowOpenFileDialog("All supported files|*.vrm;*.bvh;*.wav;*.ogg|VRM file|*.vrm|Motion file|*.bvh|Audio file|*.wav;*.ogg|All file|*.*");
                         //LoadFile(path);
                     });
