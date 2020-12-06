@@ -218,43 +218,48 @@ namespace Kirurobo
             float now = Time.timeSinceLevelLoad;
             float span;
 
-            BlendShapeKey blinkShapeKey = BlendShapeKey.CreateFromPreset(BlendShapePreset.Blink);
+            float blinkValue = 0f;
 
+            BlendShapeKey blinkShapeKey = BlendShapeKey.CreateFromPreset(BlendShapePreset.Blink);
+            
             // 表情が笑顔の時は目が閉じられるため、まばたきは無効とする
             if (EmotionPresets[emotionIndex] == BlendShapePreset.Joy)
             {
                 blinkState = BlinkState.None;
-                blendShapeProxy.ImmediatelySetValue(blinkShapeKey, 0f);
+                blinkValue = 0f;
+                blendShapeProxy.ImmediatelySetValue(blinkShapeKey, blinkValue);
             }
-
+            
             // まばたきの状態遷移
             switch (blinkState)
             {
                 case BlinkState.Closing:
                     span = now - lastBlinkTime;
+
                     if (span > BlinkTime)
                     {
                         blinkState = BlinkState.Opening;
-                        blendShapeProxy.ImmediatelySetValue(blinkShapeKey, 1f);
+                        blinkValue = 1f;
                     }
                     else
                     {
-                        blendShapeProxy.ImmediatelySetValue(blinkShapeKey, (span / BlinkTime));
+                        blinkValue = span / BlinkTime;
                     }
-
+                    blendShapeProxy.ImmediatelySetValue(blinkShapeKey, blinkValue);
                     break;
                 case BlinkState.Opening:
                     span = now - lastBlinkTime - BlinkTime;
+
                     if (span > BlinkTime)
                     {
                         blinkState = BlinkState.None;
-                        blendShapeProxy.ImmediatelySetValue(blinkShapeKey, 0f);
+                        blinkValue = 0f;
                     }
                     else
                     {
-                        blendShapeProxy.ImmediatelySetValue(blinkShapeKey, (1f - span) / BlinkTime);
+                        blinkValue = 1f - (span / BlinkTime);
                     }
-
+                    blendShapeProxy.ImmediatelySetValue(blinkShapeKey, blinkValue);
                     break;
                 default:
                     if (now >= nextBlinkTime)
@@ -271,9 +276,9 @@ namespace Kirurobo
 
                         blinkState = BlinkState.Closing;
                     }
-
                     break;
             }
+        
         }
 
         /// <summary>
