@@ -68,8 +68,10 @@ namespace Kirurobo
         private GameObject targetObject; // 視線目標オブジェクト
         private Transform headTransform; // Head transform
         private bool hasNewTargetObject = false; // 新規に目標オブジェクトを作成したらtrue
-        private Transform leftHandTransform; // Head transform
-        private Transform rightHandTransform; // Head transform
+        private Transform leftHandTransform;
+        private Transform rightHandTransform;
+        private Transform leftShoulderTransform;
+        private Transform rightShoulderTransform;
 
         private Animator animator;
         private AnimatorStateInfo currentState; // 現在のステート状態を保存する参照
@@ -152,8 +154,16 @@ namespace Kirurobo
             }
             else if (anim != animator)
             {
+                // カーソルに手を伸ばす際に利用する
                 rightHandTransform = anim.GetBoneTransform(HumanBodyBones.RightHand);
                 leftHandTransform = anim.GetBoneTransform(HumanBodyBones.LeftHand);
+                
+                // カーソルが体のどちら側にあるかを見る際は肩を見る
+                rightShoulderTransform = anim.GetBoneTransform(HumanBodyBones.RightShoulder);
+                leftShoulderTransform = anim.GetBoneTransform(HumanBodyBones.LeftShoulder);
+                // もし肩が不明なら手で代替
+                if (!rightShoulderTransform) rightShoulderTransform = rightHandTransform;
+                if (!leftShoulderTransform) leftShoulderTransform = leftHandTransform;
             }
 
             animator = anim;
@@ -363,13 +373,13 @@ namespace Kirurobo
         /// </summary>
         void OnAnimatorIK()
         {
-            UpdateHand();
+            UpdateHands();
         }
-
+        
         /// <summary>
         /// マウスカーソルの方を見る動作
         /// </summary>
-        private void UpdateHand()
+        private void UpdateHands()
         {
             if (!animator || !rightHandTransform || !leftHandTransform) return;
 
@@ -386,9 +396,12 @@ namespace Kirurobo
             // IK_HANDというアニメーションのときのみ、手を伸ばす
             if (animState.IsName("IK_HAND") || animState.IsName("IK_HAND_REVERSE"))
             {
-
-                float sqrDistanceRight = (cursorPosition - rightHandTransform.position).sqrMagnitude;
-                float sqrDistanceLeft = (cursorPosition - leftHandTransform.position).sqrMagnitude;
+                // float sqrDistanceRight = (cursorPosition - rightHandTransform.position).sqrMagnitude;
+                // float sqrDistanceLeft = (cursorPosition - leftHandTransform.position).sqrMagnitude;
+                
+                // 手先ではなく、右肩、左肩どちらにカーソルが近いかで、左右どちらの腕を伸ばすか決定する
+                float sqrDistanceRight = (cursorPosition - rightShoulderTransform.position).sqrMagnitude;
+                float sqrDistanceLeft = (cursorPosition - leftShoulderTransform.position).sqrMagnitude;
 
                 if (sqrDistanceRight < sqrDistanceLeft)
                 {
