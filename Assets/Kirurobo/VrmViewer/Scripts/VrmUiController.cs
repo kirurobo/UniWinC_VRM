@@ -24,20 +24,17 @@ namespace Kirurobo
         public Button closeButton;
         public Toggle transparentToggle;
         public Toggle topmostToggle;
-        public Toggle maximizeToggle;
+
+        [FormerlySerializedAs("maximizedToggle")]
+        public Toggle zoomedToggle;
         public Button openButton;
         public Button quitButton;
         public Text titleText;
-
-        [FormerlySerializedAs("zoomModeDropdown")]
         public Dropdown zoomTypeDropdown;
 
-        [FormerlySerializedAs("transparentMethodDropdown")]
         public Dropdown transparentTypeDropdown;
-
         public Dropdown hitTestTypeDropdown;
         public Dropdown languageDropdown;
-
         public Toggle motionTogglePreset;
         public Toggle motionToggleRandom;
         public Toggle motionToggleBvh;
@@ -191,9 +188,9 @@ namespace Kirurobo
                     transparentToggle.onValueChanged.AddListener((value => windowController.isTransparent = value));
                 }
 
-                if (maximizeToggle)
+                if (zoomedToggle)
                 {
-                    maximizeToggle.onValueChanged.AddListener((value => windowController.isZoomed = value));
+                    zoomedToggle.onValueChanged.AddListener((value => windowController.isZoomed = value));
                 }
 
                 if (topmostToggle)
@@ -438,9 +435,9 @@ namespace Kirurobo
                     transparentToggle.isOn = windowController.isTransparent;
                 }
 
-                if (maximizeToggle)
+                if (zoomedToggle)
                 {
-                    maximizeToggle.isOn = windowController.isZoomed;
+                    zoomedToggle.isOn = windowController.isZoomed;
                 }
 
                 if (topmostToggle)

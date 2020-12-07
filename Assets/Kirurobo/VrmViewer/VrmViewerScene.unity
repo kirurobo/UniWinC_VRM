@@ -8430,7 +8430,7 @@ GameObject:
   - component: {fileID: 1143313282}
   - component: {fileID: 1143313283}
   m_Layer: 5
-  m_Name: MaximizeToggle
+  m_Name: ZoomedToggle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11138,7 +11138,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Maximize
+  m_Text: Zoomed
 --- !u!222 &1579682649
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -12510,7 +12510,7 @@ MonoBehaviour:
   closeButton: {fileID: 1898265831}
   transparentToggle: {fileID: 1922488415}
   topmostToggle: {fileID: 1563935197}
-  maximizeToggle: {fileID: 1143313283}
+  zoomedToggle: {fileID: 1143313283}
   openButton: {fileID: 1029807923}
   quitButton: {fileID: 1511164576}
   titleText: {fileID: 856700549}
