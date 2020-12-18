@@ -47,7 +47,7 @@ namespace Kirurobo
         public RectTransform modelPanel;
         public RectTransform controlPanel;
         public CameraController.ZoomType zoomType { get; set; }
-        public UniWinCore.TransparentType transparentType { get; set; }
+        public UniWindowController.TransparentType transparentType { get; set; }
         public UniWindowController.HitTestType hitTestType { get; set; }
         int language { get; set; }
 
@@ -140,7 +140,7 @@ namespace Kirurobo
             }
 
             zoomType = CameraController.ZoomType.Zoom;
-            transparentType = UniWinCore.TransparentType.Alpha;
+            transparentType = UniWindowController.TransparentType.Alpha;
 
             // WindowControllerが指定されていなければ自動取得
             windowController = FindObjectOfType<UniWindowController>();
@@ -322,15 +322,15 @@ namespace Kirurobo
         {
             if (index == 1)
             {
-                transparentType = UniWinCore.TransparentType.Alpha;
+                transparentType = UniWindowController.TransparentType.Alpha;
             }
             else if (index == 2)
             {
-                transparentType = UniWinCore.TransparentType.ColorKey;
+                transparentType = UniWindowController.TransparentType.ColorKey;
             }
             else
             {
-                transparentType = UniWinCore.TransparentType.None;
+                transparentType = UniWindowController.TransparentType.None;
             }
         }
 
