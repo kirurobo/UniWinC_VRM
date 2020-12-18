@@ -426,6 +426,8 @@ namespace Kirurobo
                     GameObject.Destroy(model.gameObject);
                 }
 
+                Resources.UnloadUnusedAssets();
+
                 model = newModelObject.AddComponent<HumanPoseTransfer>();
 
                 CreateColliders(model.gameObject);
