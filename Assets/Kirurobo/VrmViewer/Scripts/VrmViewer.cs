@@ -13,6 +13,7 @@ using UnityEngine.Networking;
 using VRM;
 using Kirurobo;
 using SFB;
+using UniGLTF;
 
 namespace Kirurobo
 {
@@ -25,7 +26,6 @@ namespace Kirurobo
 
         private UniWindowController windowController;
 
-        private VRMImporterContext context;
         private HumanPoseTransfer model;
         private HumanPoseTransfer motion;
         private VRMMetaObject meta;
@@ -402,14 +402,21 @@ namespace Kirurobo
             try
             {
                 // Load from a VRM file.
-                context = new VRMImporterContext();
-                //Debug.Log("Loading model : " + path);
+                var parser = new GltfParser();
+                parser.ParsePath(path);
 
-                context.Load(path);
-                newModelObject = context.Root;
-                meta = context.ReadMeta(true);
+                using (var context = new VRMImporterContext(parser)) {
+                    //Debug.Log("Loading model : " + path);
 
-                context.ShowMeshes();
+                    context.Load();
+                    context.EnableUpdateWhenOffscreen();
+
+                    newModelObject = context.Root;
+                    meta = context.ReadMeta(true);
+
+                    context.ShowMeshes();
+                    context.DisposeOnGameObjectDestroyed();
+                }
             }
             catch (Exception ex)
             {

@@ -1,12 +1,5 @@
 {
   "dependencies": {
-    "com.kirurobo.uniwinc": {
-      "version": "https://github.com/kirurobo/UniWindowController.git?path=/Unity/Assets/Kirurobo/UniWindowController",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {},
-      "hash": "ba9d657e11b4188fd60ee843f7d4b14b3aaa548a"
-    },
     "com.unity.collab-proxy": {
       "version": "1.2.16",
       "depth": 0,
@@ -15,14 +8,14 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ext.nunit": {
-      "version": "1.0.5",
+      "version": "1.0.6",
       "depth": 1,
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
     "com.unity.ide.rider": {
-      "version": "1.1.4",
+      "version": "1.2.1",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -38,18 +31,18 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.test-framework": {
-      "version": "1.1.19",
+      "version": "1.1.24",
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.unity.ext.nunit": "1.0.5",
+        "com.unity.ext.nunit": "1.0.6",
         "com.unity.modules.imgui": "1.0.0",
         "com.unity.modules.jsonserialize": "1.0.0"
       },
       "url": "https://packages.unity.com"
     },
     "com.unity.textmeshpro": {
-      "version": "2.1.1",
+      "version": "2.1.4",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -58,10 +51,15 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.timeline": {
-      "version": "1.2.17",
+      "version": "1.2.18",
       "depth": 0,
       "source": "registry",
-      "dependencies": {},
+      "dependencies": {
+        "com.unity.modules.director": "1.0.0",
+        "com.unity.modules.animation": "1.0.0",
+        "com.unity.modules.audio": "1.0.0",
+        "com.unity.modules.particlesystem": "1.0.0"
+      },
       "url": "https://packages.unity.com"
     },
     "com.unity.ugui": {
@@ -73,29 +71,31 @@
         "com.unity.modules.imgui": "1.0.0"
       }
     },
-    "com.vrmc.meshutility": {
-      "version": "https://github.com/vrm-c/UniVRM.git?path=/Assets/MeshUtility#v0.62.0",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {},
-      "hash": "0b7f99734e56e8bd23212106bbbc34a997c4c9be"
-    },
-    "com.vrmc.univrm": {
-      "version": "https://github.com/vrm-c/UniVRM.git?path=/Assets/VRM#v0.62.0",
+    "com.vrmc.unigltf": {
+      "version": "https://github.com/vrm-c/UniVRM.git?path=/Assets/UniGLTF#v0.73.0",
       "depth": 0,
       "source": "git",
       "dependencies": {
-        "com.vrmc.vrmshaders": "0.62.0",
-        "com.vrmc.meshutility": "0.62.0"
+        "com.vrmc.vrmshaders": "0.73.0"
       },
-      "hash": "0b7f99734e56e8bd23212106bbbc34a997c4c9be"
+      "hash": "af50e8e2a3d62adfc95d831c0725f193619e5d80"
+    },
+    "com.vrmc.univrm": {
+      "version": "https://github.com/vrm-c/UniVRM.git?path=/Assets/VRM#v0.73.0",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.vrmc.vrmshaders": "0.73.0",
+        "com.vrmc.unigltf": "2.9.0"
+      },
+      "hash": "af50e8e2a3d62adfc95d831c0725f193619e5d80"
     },
     "com.vrmc.vrmshaders": {
-      "version": "https://github.com/vrm-c/UniVRM.git?path=/Assets/VRMShaders#v0.62.0",
+      "version": "https://github.com/vrm-c/UniVRM.git?path=/Assets/VRMShaders#v0.73.0",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "0b7f99734e56e8bd23212106bbbc34a997c4c9be"
+      "hash": "af50e8e2a3d62adfc95d831c0725f193619e5d80"
     },
     "com.unity.modules.ai": {
       "version": "1.0.0",
