@@ -120,6 +120,8 @@ namespace Kirurobo
             if (!currentCamera)
             {
                 currentCamera = Camera.main;
+                if (!currentCamera) currentCamera = GameObject.FindObjectOfType<Camera>();
+                Debug.Log(currentCamera);
             }
 
             // UIコントローラーを取得

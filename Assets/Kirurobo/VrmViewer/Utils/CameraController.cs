@@ -43,7 +43,7 @@ namespace Kirurobo
         [Tooltip("None means to set the parent transform")]
         public Transform centerTransform; // 回転中心
 
-        private GameObject centerObject = null; // 回転中心Transformが指定されなかった場合に作成される
+        internal GameObject centerObject = null; // 回転中心Transformが指定されなかった場合に作成される
 
         internal Vector3 rotation;
         internal Vector3 translation;
