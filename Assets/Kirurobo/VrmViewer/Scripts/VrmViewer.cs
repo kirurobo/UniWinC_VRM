@@ -23,7 +23,7 @@ namespace Kirurobo
     /// </summary>
     public class VrmViewer : MonoBehaviour
     {
-
+        private LookingGlass.Holoplay holoplay;
         private UniWindowController windowController;
 
         private HumanPoseTransfer model;
@@ -134,6 +134,42 @@ namespace Kirurobo
                     });
                 }
             }
+
+            holoplay = FindObjectOfType<LookingGlass.Holoplay>();
+            if (holoplay && windowController)
+            {
+                windowController.OnMonitorChanged += WindowController_OnMonitorChanged;
+                FitToLookingGlassPortrait();
+
+            }
+        }
+
+        private void FitToLookingGlassPortrait()
+        {
+            Rect[] monitors = windowController.GetMonitorRectangles();
+            for (int i = 0; i < monitors.Length; i++)
+            {
+                var rect = monitors[i];
+                if (rect.width == 1536 && rect.height == 2048)
+                {
+                    windowController.isBottommost = false;
+                    windowController.isTopmost = false;
+                    windowController.isTransparent = false;
+                    windowController.monitorToFit = i;
+                    windowController.shouldFitMonitor = true;
+                    windowController.isZoomed = true;
+                    break;
+                }
+            }
+        }
+
+        private void WindowController_OnMonitorChanged()
+        {
+            if (holoplay)
+            {
+                holoplay.SetupQuilt();
+                holoplay.ReloadCalibration();
+            }
         }
 
         void Update()
@@ -157,11 +193,11 @@ namespace Kirurobo
             // UIで変化があったら反映させる
             if (uiController && windowController)
             {
-                // 透明化方式がUIで変更されていれば反映
-                if (uiController.transparentType != windowController.transparentType)
-                {
-                    windowController.SetTransparentType(uiController.transparentType);
-                }
+                //// 透明化方式がUIで変更されていれば反映
+                //if (uiController.transparentType != windowController.transparentType)
+                //{
+                //    windowController.SetTransparentType(uiController.transparentType);
+                //}
 
                 // ヒットテスト方式がUIで変更されていれば反映
                 if (uiController.hitTestType != windowController.hitTestType)
@@ -173,7 +209,7 @@ namespace Kirurobo
             // End を押すとウィンドウ透過切替
             if (Input.GetKeyDown(KeyCode.End))
             {
-                windowController.isTransparent = !windowController.isTransparent;
+                //windowController.isTransparent = !windowController.isTransparent;
             }
 
             // Home を押すと最前面切替

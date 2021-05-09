@@ -164,7 +164,7 @@ namespace Kirurobo
             SetupBlendShapeDropdown();
 
             // Load settings.
-            Load();
+            //Load();
 
             // Initialize toggles.
             UpdateUI();
@@ -185,7 +185,7 @@ namespace Kirurobo
                 // プロパティをバインド
                 if (transparentToggle)
                 {
-                    transparentToggle.onValueChanged.AddListener((value => windowController.isTransparent = value));
+                    //transparentToggle.onValueChanged.AddListener((value => windowController.isTransparent = value));
                 }
 
                 if (zoomedToggle)
@@ -231,6 +231,7 @@ namespace Kirurobo
 
             // Show menu on startup.
             Show(null);
+            Close();
         }
 
         public void Save()
@@ -271,8 +272,8 @@ namespace Kirurobo
 
             if (windowController)
             {
-                windowController.isTransparent = LoadPrefsBool("Transparent", windowController.isTransparent);
-                windowController.isZoomed = LoadPrefsBool("Maximized", windowController.isZoomed);
+                //windowController.isTransparent = LoadPrefsBool("Transparent", windowController.isTransparent);
+                //windowController.isZoomed = LoadPrefsBool("Maximized", windowController.isZoomed);
                 windowController.isTopmost = LoadPrefsBool("Topmost", windowController.isTopmost);
 
                 // WindowControllerの値をデフォルトとする
@@ -475,7 +476,7 @@ namespace Kirurobo
         void OnApplicationQuit()
         {
             // 終了時には設定を保存する
-            Save();
+            //Save();
             //Debug.Log("Saved. Zoom:" + zoomMode + ", Trans.:" + transparentType + ", Lang.:" + language);
         }
 
@@ -531,6 +532,7 @@ namespace Kirurobo
         /// <param name="mousePosition"></param>
         public void Show(Vector2 mousePosition)
         {
+            return;     // 表示させない
             if (panel)
             {
                 Vector2 pos = mousePosition;
@@ -554,6 +556,7 @@ namespace Kirurobo
         /// </summary>
         public void Show()
         {
+            return;     // 表示させない
             if (panel)
             {
                 // 中央基準にして表示

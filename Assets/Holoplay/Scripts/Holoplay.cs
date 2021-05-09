@@ -236,6 +236,7 @@ namespace LookingGlass {
 			lightfieldCam.clearFlags = CameraClearFlags.Nothing;
 
 			ReloadCalibration();
+            targetDisplay = 0;
 
 #if UNITY_2019_3_OR_NEWER
             if (!Application.isEditor) {
@@ -248,10 +249,10 @@ namespace LookingGlass {
 				}
 				
 #else
-                Display.displays[targetDisplay].SetParams(
-                    0, 0, cal.xpos, cal.ypos
-                );
-                Display.displays[targetDisplay].Activate(0, 0, 0);
+                //Display.displays[targetDisplay].SetParams(
+                //    0, 0, cal.xpos, cal.ypos
+                //);
+                //Display.displays[targetDisplay].Activate(0, 0, 0);
 				
 #if UNITY_STANDALONE_WIN
 				// dunno why the screenwidth and height won't work here
@@ -267,7 +268,7 @@ namespace LookingGlass {
             // Debug.Log("general init target display:" + targetDisplay);
 
 			// setup the window to play on the looking glass, much be executed after display reposition
-			Screen.SetResolution(cal.screenWidth, cal.screenHeight, true);
+			//Screen.SetResolution(cal.screenWidth, cal.screenHeight, true);
 
 			// setup the quilt
 			SetupQuilt();
@@ -821,9 +822,9 @@ namespace LookingGlass {
                 cal = CalibrationManager.GetCalibration(0);
 				bool cannotFound = true;
 				for (int i = 0; i < CalibrationManager.GetCalibrationCount(); i++) {
-                    if (targetDisplay != CalibrationManager.GetCalibration(i).unityIndex) {
-                        continue;
-                    }
+                    //if (targetDisplay != CalibrationManager.GetCalibration(i).unityIndex) {
+                    //    continue;
+                    //}
 
 					cal = CalibrationManager.GetCalibration(i);
                     targetLKG = i;
@@ -856,8 +857,8 @@ namespace LookingGlass {
 			}
 			
 			// force camera display to change right now!
-			if(cam != null && lightfieldCam != null)
-				cam.targetDisplay = lightfieldCam.targetDisplay = targetDisplay;
+			//if(cam != null && lightfieldCam != null)
+			//	cam.targetDisplay = lightfieldCam.targetDisplay = targetDisplay;
 
             PassSettingsToMaterial(lightfieldMat);
             this.loadResults = results;

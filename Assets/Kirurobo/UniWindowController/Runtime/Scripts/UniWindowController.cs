@@ -811,6 +811,12 @@ namespace Kirurobo
             return uniWinCore.GetMonitorCount();
         }
 
+        public Rect[] GetMonitorRectangles()
+        {
+            if (uniWinCore == null) return null;
+            return uniWinCore.GetMonitorRectangles();
+        }
+
         /// <summary>
         /// Fit to the specified monitor
         /// </summary>

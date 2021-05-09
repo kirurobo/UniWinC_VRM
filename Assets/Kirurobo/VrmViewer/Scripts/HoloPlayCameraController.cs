@@ -67,7 +67,7 @@ namespace Kirurobo
         /// </summary>
         internal void SetupTransform()
         {
-            relativePosition = centerTransform.position - transform.position; // カメラから中心座標へのベクトル
+            relativePosition = Vector3.forward; // カメラから中心座標へのベクトル
             relativeRotation = Quaternion.LookRotation(relativePosition, Vector3.up);
             originalDistance = relativePosition.magnitude;
 

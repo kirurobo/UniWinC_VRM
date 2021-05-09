@@ -1,4 +1,4 @@
-﻿/*
+/*
  * UniWinCore.cs
  * 
  * Author: Kirurobo http://twitter.com/kirurobo
@@ -600,6 +600,29 @@ namespace Kirurobo
                 return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// Get all monitor rectangles
+        /// </summary>
+        /// <returns></returns>
+        public Rect[] GetMonitorRectangles()
+        {
+            int count = LibUniWinC.GetMonitorCount();
+            Rect[] list = new Rect[count];
+
+            for (int i = 0; i < count; i++)
+            {
+                float dx, dy, dw, dh;
+                if (LibUniWinC.GetMonitorRectangle(i, out dx, out dy, out dw, out dh))
+                {
+                    list[i] = new Rect(dx, dy, dw, dh);
+                } else
+                {
+                    list[i] = new Rect();
+                }
+            }
+            return list;
         }
 
         /// <summary>
