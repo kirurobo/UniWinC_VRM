@@ -236,7 +236,6 @@ namespace LookingGlass {
 			lightfieldCam.clearFlags = CameraClearFlags.Nothing;
 
 			ReloadCalibration();
-            targetDisplay = 0;
 
 #if UNITY_2019_3_OR_NEWER
             if (!Application.isEditor) {
@@ -835,7 +834,8 @@ namespace LookingGlass {
 				// Debug.Log(cannotFound);
 				if (cannotFound) {
 					
-					targetDisplay = cal.unityIndex;
+					//targetDisplay = cal.unityIndex;
+					targetDisplay = 0;
                     Debug.LogWarning("[Holoplay] Failed to find matched Looking Glass. The first available target display is " + cal.unityIndex);
 				}
 			}

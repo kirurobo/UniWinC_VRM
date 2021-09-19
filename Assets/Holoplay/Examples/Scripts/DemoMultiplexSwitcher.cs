@@ -1,4 +1,4 @@
-﻿//Copyright 2017-2021 Looking Glass Factory Inc.
+//Copyright 2017-2021 Looking Glass Factory Inc.
 //All rights reserved.
 //Unauthorized copying or distribution of this file, and the source code contained herein, is strictly prohibited.
 

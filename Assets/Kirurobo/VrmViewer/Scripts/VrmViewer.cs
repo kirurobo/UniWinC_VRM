@@ -152,9 +152,6 @@ namespace Kirurobo
                 var rect = monitors[i];
                 if (rect.width == 1536 && rect.height == 2048)
                 {
-                    windowController.isBottommost = false;
-                    windowController.isTopmost = false;
-                    windowController.isTransparent = false;
                     windowController.monitorToFit = i;
                     windowController.shouldFitMonitor = true;
                     windowController.isZoomed = true;
@@ -209,7 +206,7 @@ namespace Kirurobo
             // End を押すとウィンドウ透過切替
             if (Input.GetKeyDown(KeyCode.End))
             {
-                //windowController.isTransparent = !windowController.isTransparent;
+                windowController.isTransparent = !windowController.isTransparent;
             }
 
             // Home を押すと最前面切替
@@ -223,6 +220,28 @@ namespace Kirurobo
             {
                 windowController.isZoomed = !windowController.isZoomed;
             }
+
+
+            // PgUp を押すとモニタ切替
+            if (Input.GetKeyDown(KeyCode.PageUp))
+            {
+                int monitor = windowController.monitorToFit - 1;
+                if (monitor < 0) monitor = windowController.GetMonitorCount() - 1;
+                windowController.monitorToFit = monitor;
+                if (!windowController.isZoomed) windowController.isZoomed = true;
+                Debug.Log("Monitor :" + monitor);
+            }
+
+            // PgDw を押すとモニタ切替
+            if (Input.GetKeyDown(KeyCode.PageDown))
+            {
+                int monitor = windowController.monitorToFit + 1;
+                if (monitor >= windowController.GetMonitorCount()) monitor = 0;
+                windowController.monitorToFit = monitor;
+                if (!windowController.isZoomed) windowController.isZoomed = true;
+                Debug.Log("Monitor :" + monitor);
+            }
+
         }
 
         /// <summary>

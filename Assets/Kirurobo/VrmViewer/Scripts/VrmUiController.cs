@@ -164,7 +164,7 @@ namespace Kirurobo
             SetupBlendShapeDropdown();
 
             // Load settings.
-            //Load();
+            Load();
 
             // Initialize toggles.
             UpdateUI();
@@ -274,22 +274,22 @@ namespace Kirurobo
             {
                 //windowController.isTransparent = LoadPrefsBool("Transparent", windowController.isTransparent);
                 //windowController.isZoomed = LoadPrefsBool("Maximized", windowController.isZoomed);
-                windowController.isTopmost = LoadPrefsBool("Topmost", windowController.isTopmost);
+                //windowController.isTopmost = LoadPrefsBool("Topmost", windowController.isTopmost);
 
                 // WindowControllerの値をデフォルトとする
                 defaultTransparentTypeIndex = (int) windowController.transparentType;
                 defaultHitTestTypeIndex = (int) windowController.hitTestType;
             }
 
-            SetZoomType(PlayerPrefs.GetInt("ZoomType", defaultZoomTypeIndex));
-            SetTransparentType(PlayerPrefs.GetInt("TransparentType", defaultTransparentTypeIndex));
-            SetHitTestType(PlayerPrefs.GetInt("HitTestType", defaultHitTestTypeIndex));
-            SetLanguage(PlayerPrefs.GetInt("Language", defaultLanguageIndex));
+            //SetZoomType(PlayerPrefs.GetInt("ZoomType", defaultZoomTypeIndex));
+            //SetTransparentType(PlayerPrefs.GetInt("TransparentType", defaultTransparentTypeIndex));
+            //SetHitTestType(PlayerPrefs.GetInt("HitTestType", defaultHitTestTypeIndex));
+            //SetLanguage(PlayerPrefs.GetInt("Language", defaultLanguageIndex));
 
-            motionMode =
-                (VrmCharacterBehaviour.MotionMode) PlayerPrefs.GetInt("VrmCharacterBehaviour.MotionMode",
-                    (int) motionMode);
-            enableRandomEmotion = LoadPrefsBool("EmotionMode", enableRandomEmotion);
+            //motionMode =
+            //    (VrmCharacterBehaviour.MotionMode) PlayerPrefs.GetInt("VrmCharacterBehaviour.MotionMode",
+            //        (int) motionMode);
+            //enableRandomEmotion = LoadPrefsBool("EmotionMode", enableRandomEmotion);
         }
 
         private bool LoadPrefsBool(string name, bool currentVal)

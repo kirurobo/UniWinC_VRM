@@ -1,4 +1,4 @@
-﻿//Copyright 2017-2021 Looking Glass Factory Inc.
+//Copyright 2017-2021 Looking Glass Factory Inc.
 //All rights reserved.
 //Unauthorized copying or distribution of this file, and the source code contained herein, is strictly prohibited.
 
@@ -164,11 +164,11 @@ namespace LookingGlass {
                             h.cal.index = h.targetLKG;
  							// Debug.Log(h.name + " is set to be target at display " + h.targetDisplay);
 							h.ReloadCalibration ();
-							if (Display.displays.Length > h.targetDisplay) {
-								// Debug.Log("active display:"+h.targetDisplay);
-								Display.displays[h.targetDisplay].Activate();
-								Display.displays[h.targetDisplay].SetRenderingResolution(h.cal.screenWidth, h.cal.screenHeight);
-							}
+							//if (Display.displays.Length > h.targetDisplay) {
+							//	// Debug.Log("active display:"+h.targetDisplay);
+							//	Display.displays[h.targetDisplay].Activate();
+							//	Display.displays[h.targetDisplay].SetRenderingResolution(h.cal.screenWidth, h.cal.screenHeight);
+							//}
 						} else {	
 							Debug.LogWarning("[Holoplay] Not enough displays connected for current multiview setup");
 						}
