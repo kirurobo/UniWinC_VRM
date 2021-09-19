@@ -12,6 +12,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using VRM;
 using Kirurobo;
+using UniGLTF;
 using SFB;
 
 namespace Kirurobo
@@ -25,7 +26,6 @@ namespace Kirurobo
 
         private UniWindowController windowController;
 
-        private VRMImporterContext context;
         private HumanPoseTransfer model;
         private HumanPoseTransfer motion;
         private VRMMetaObject meta;
@@ -402,14 +402,19 @@ namespace Kirurobo
             try
             {
                 // Load from a VRM file.
-                context = new VRMImporterContext();
-                //Debug.Log("Loading model : " + path);
+                var gltfData = new GlbFileParser(path).Parse();
+                var vrmData = new VRMData(gltfData);
 
-                context.Load(path);
-                newModelObject = context.Root;
-                meta = context.ReadMeta(true);
+                using (var context = new VRMImporterContext(vrmData))
+                {
+                    var instance = context.Load();
+                    instance.EnableUpdateWhenOffscreen();
 
-                context.ShowMeshes();
+                    newModelObject = instance.Root;
+                    meta = context.ReadMeta(true);
+
+                    instance.ShowMeshes();
+                }
             }
             catch (Exception ex)
             {
@@ -425,8 +430,6 @@ namespace Kirurobo
                 {
                     GameObject.Destroy(model.gameObject);
                 }
-
-                Resources.UnloadUnusedAssets();
 
                 model = newModelObject.AddComponent<HumanPoseTransfer>();
 
@@ -447,6 +450,16 @@ namespace Kirurobo
                     }
 
                 }
+            }
+        }
+        
+        RuntimeGltfInstance LoadVrm(VRMData vrm)
+        {
+            using (var loader = new VRMImporterContext(vrm))
+            {
+                //var instance = await loader.LoadAsync();
+                var instance = loader.Load();
+                return instance;
             }
         }
 
