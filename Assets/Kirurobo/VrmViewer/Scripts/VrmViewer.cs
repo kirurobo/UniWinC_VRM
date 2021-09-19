@@ -127,7 +127,7 @@ namespace Kirurobo
                             false,
                             (path)=>
                             {
-                                LoadFile(path[0]);
+                                if (path.Length > 0) LoadFile(path[0]);
                             });
                         //string path = windowController.ShowOpenFileDialog("All supported files|*.vrm;*.bvh;*.wav;*.ogg|VRM file|*.vrm|Motion file|*.bvh|Audio file|*.wav;*.ogg|All file|*.*");
                         //LoadFile(path);
@@ -276,34 +276,14 @@ namespace Kirurobo
                     characterController.randomEmotion = uiController.enableRandomEmotion;
                 }
 
-                if (_motionMode != VrmCharacterBehaviour.MotionMode.Bvh)
+                var anim = model.GetComponent<Animator>();
+                if (anim && this.animator)
                 {
-                    var anim = model.GetComponent<Animator>();
-                    if (anim && this.animator)
-                    {
-                        anim.runtimeAnimatorController = this.animator.runtimeAnimatorController;
-                    }
-
-                    characterController.SetAnimator(anim);
+                    anim.runtimeAnimatorController = this.animator.runtimeAnimatorController;
                 }
-                else
-                {
-                    var anim = model.GetComponent<Animator>();
-                    if (anim)
-                    {
-                        anim.runtimeAnimatorController = null;
-                    }
-
-                    characterController.SetAnimator(anim);
-
-                    if (motion)
-                    {
-                        model.Source = motion;
-                        model.SourceType = HumanPoseTransfer.HumanPoseTransferSourceType.HumanPoseTransfer;
-                    }
-                }
-
                 characterController.SetMotionMode(_motionMode);
+                characterController.SetAnimator(anim);
+
             }
             else
             {

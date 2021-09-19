@@ -64,6 +64,9 @@ namespace Kirurobo
 
         private TabPanelManager tabPanelManager;
 
+        public delegate void motionChangedDelegate(VrmCharacterBehaviour.MotionMode mode);
+        public motionChangedDelegate OnMotionChanged;
+
         /// <summary>
         /// ランダムモーションが有効かを取得／設定
         /// </summary>
@@ -108,25 +111,51 @@ namespace Kirurobo
             }
             set
             {
-                if (value == VrmCharacterBehaviour.MotionMode.Random)
+                //if (value == VrmCharacterBehaviour.MotionMode.Random)
+                //{
+                //    if (motionTogglePreset) motionTogglePreset.isOn = false;
+                //    if (motionToggleRandom) motionToggleRandom.isOn = true;
+                //    if (motionToggleBvh) motionToggleBvh.isOn = false;
+                //}
+                //else if (value == VrmCharacterBehaviour.MotionMode.Bvh)
+                //{
+                //    if (motionTogglePreset) motionTogglePreset.isOn = false;
+                //    if (motionToggleRandom) motionToggleRandom.isOn = false;
+                //    if (motionToggleBvh) motionToggleBvh.isOn = true;
+                //}
+                //else
+                //{
+                //    if (motionTogglePreset) motionTogglePreset.isOn = true;
+                //    if (motionToggleRandom) motionToggleRandom.isOn = false;
+                //    if (motionToggleBvh) motionToggleBvh.isOn = false;
+                //}
+
+                if (OnMotionChanged != null)
                 {
-                    if (motionTogglePreset) motionTogglePreset.isOn = false;
-                    if (motionToggleRandom) motionToggleRandom.isOn = true;
-                    if (motionToggleBvh) motionToggleBvh.isOn = false;
-                }
-                else if (value == VrmCharacterBehaviour.MotionMode.Bvh)
-                {
-                    if (motionTogglePreset) motionTogglePreset.isOn = false;
-                    if (motionToggleRandom) motionToggleRandom.isOn = false;
-                    if (motionToggleBvh) motionToggleBvh.isOn = true;
-                }
-                else
-                {
-                    if (motionTogglePreset) motionTogglePreset.isOn = true;
-                    if (motionToggleRandom) motionToggleRandom.isOn = false;
-                    if (motionToggleBvh) motionToggleBvh.isOn = false;
+                    OnMotionChanged.Invoke(value);
                 }
             }
+        }
+
+        public void OnMotionToggleClicked(VrmCharacterBehaviour.MotionMode value)
+        {
+            if (value == VrmCharacterBehaviour.MotionMode.Random)
+            {
+                if (motionTogglePreset) motionTogglePreset.isOn = false;
+                if (motionToggleBvh) motionToggleBvh.isOn = false;
+            }
+            else if (value == VrmCharacterBehaviour.MotionMode.Bvh)
+            {
+                if (motionTogglePreset) motionTogglePreset.isOn = false;
+                if (motionToggleRandom) motionToggleRandom.isOn = false;
+            }
+            else
+            {
+                if (motionToggleRandom) motionToggleRandom.isOn = false;
+                if (motionToggleBvh) motionToggleBvh.isOn = false;
+            }
+
+            motionMode = value;
         }
 
         /// <summary>
@@ -199,10 +228,16 @@ namespace Kirurobo
                 }
             }
 
+            // タイトルのバージョン番号を追加
+            if (titleText)
+            {
+                titleText.text = Application.productName + " " + Application.version;
+            }
+
             //if (emotionToggleRandom) { emotionToggleRandom.onValueChanged.AddListener(val => enableRandomEmotion = val); }
-            //if (motionTogglePreset) { motionTogglePreset.onValueChanged.AddListener(val => motionMode = VrmCharacterBehaviour.MotionMode.Default); }
+            if (motionTogglePreset) { motionTogglePreset.onValueChanged.AddListener(val => OnMotionToggleClicked(VrmCharacterBehaviour.MotionMode.Default)); }
+            if (motionToggleBvh) { motionToggleBvh.onValueChanged.AddListener(val => OnMotionToggleClicked(VrmCharacterBehaviour.MotionMode.Bvh)); }
             //if (motionToggleRandom) { motionToggleRandom.onValueChanged.AddListener(val => motionMode = VrmCharacterBehaviour.MotionMode.Random); }
-            //if (motionToggleBvh) { motionToggleBvh.onValueChanged.AddListener(val => motionMode = VrmCharacterBehaviour.MotionMode.Bvh); }
 
             // 直接バインドしない項目の初期値とイベントリスナーを設定
             if (zoomTypeDropdown)
