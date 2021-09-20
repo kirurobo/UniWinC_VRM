@@ -2,6 +2,7 @@
   "labels": {
     "Motion": "Motion",
     "Emotion": "Emotion",
+    "Window": "Window",
     "Transparent": "Transparent",
     "Topmost": "Topmost",
     "Maximize": "Maximize",
