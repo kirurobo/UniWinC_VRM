@@ -12,7 +12,9 @@
     "None": "なし",
     "Preset": "既定",
     "Random": "ランダム",
+    "Dande": "ダンス",
     "Bvh": "読み込んだBVH",
+    "Volume": "音量",
     "Repeat": "繰り返し"
   },
   "buttons": {

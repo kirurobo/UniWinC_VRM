@@ -38,6 +38,7 @@ namespace Kirurobo
         public Toggle motionTogglePreset;
         public Toggle motionToggleRandom;
         public Toggle motionToggleBvh;
+        public Slider volumeSlider;
         public Toggle emotionToggleRandom;
         public Dropdown blendShapeDropdown;
         public Slider blendShapeSlider;
@@ -66,6 +67,8 @@ namespace Kirurobo
 
         public delegate void motionChangedDelegate(VrmCharacterBehaviour.MotionMode mode);
         public motionChangedDelegate OnMotionChanged;
+
+        private AudioSource audioSource;
 
         /// <summary>
         /// ランダムモーションが有効かを取得／設定
@@ -262,6 +265,14 @@ namespace Kirurobo
             {
                 languageDropdown.value = language;
                 languageDropdown.onValueChanged.AddListener(val => SetLanguage(val));
+            }
+
+            if (volumeSlider)
+            {
+                audioSource = FindObjectOfType<AudioSource>();
+                if (audioSource) {
+                    volumeSlider.onValueChanged.AddListener(val => audioSource.volume = val);
+                 }
             }
 
             // Show menu on startup.

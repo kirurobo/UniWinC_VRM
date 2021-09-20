@@ -75,6 +75,7 @@ namespace Kirurobo
             SetText(ref transforms, "MotionTogglePreset", localeText.labels.Preset);
             SetText(ref transforms, "MotionToggleRandom", localeText.labels.Random);
             SetText(ref transforms, "MotionToggleBvh", localeText.labels.Bvh);
+            SetText(ref transforms, "VolumeText", localeText.labels.Volume);
             SetText(ref transforms, "BlendShapeDropdown", localeText.labels.Emotion);
             SetText(ref transforms, "EmotionModeText", localeText.labels.Emotion);
             SetText(ref transforms, "EmotionToggleRandom", localeText.labels.Random);
@@ -130,7 +131,7 @@ namespace Kirurobo
         {
             public string Motion, Emotion;
             public string Transparent, Topmost, Maximize;
-            public string Language, ZoomType, TransparentType, HitTestType, None, Preset, Random, Bvh, Repeat;
+            public string Language, ZoomType, TransparentType, HitTestType, None, Preset, Random, Dance, Bvh, Volume, Repeat;
         }
 
         [System.Serializable]

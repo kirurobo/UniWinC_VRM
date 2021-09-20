@@ -12,7 +12,9 @@
     "None": "None",
     "Preset": "Preset",
     "Random": "Random",
+    "Dance": "Dance",
     "Bvh": "Dropped BVH",
+    "Volume": "Volume",
     "Repeat": "Repeat"
   },
   "buttons": {
