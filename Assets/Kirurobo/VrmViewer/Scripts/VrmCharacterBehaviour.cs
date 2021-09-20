@@ -76,6 +76,7 @@ namespace Kirurobo
         private Animator animator;
         private AnimatorStateInfo currentState; // 現在のステート状態を保存する参照
         private AnimatorStateInfo previousState; // ひとつ前のステート状態を保存する参照
+        public RuntimeAnimatorController runtimeAnimatorController;
 
         public MotionMode motionMode = MotionMode.Default;
 
@@ -137,6 +138,7 @@ namespace Kirurobo
 
             SetAnimator(GetComponent<Animator>());
 
+
             currentState = animator.GetCurrentAnimatorStateInfo(0);
             previousState = currentState;
         }
@@ -174,9 +176,16 @@ namespace Kirurobo
             }
 
             animator = anim;
-            //animator.applyRootMotion = true;
-            animator.applyRootMotion = false;
-            animator.StartPlayback();
+            animator.applyRootMotion = true;
+
+            if (this.runtimeAnimatorController)
+            {
+                animator.runtimeAnimatorController = RuntimeAnimatorController.Instantiate(this.runtimeAnimatorController);
+            }
+
+            //animator.applyRootMotion = false;
+
+            //animator.StartPlayback();
 
             if (motionMode == MotionMode.Bvh)
             {
@@ -526,16 +535,16 @@ namespace Kirurobo
                 refAudioSource.Pause();
                 refAudioSource.time = 0;
             }
-            //if (animator) animator.SetBool("Dancing", true);
-            if (animator) animator.Play("003_NOT01_Final", 0, 0);
+            if (animator) animator.SetBool("Dancing", true);
+            //if (animator) animator.Play("003_NOT01_Final", 0, 0);
             //if (animator) animator.SetTrigger("StartDancing");
         }
 
         public void StopDance()
         {
             if (refAudioSource) refAudioSource.Pause();
-            //if (animator) animator.SetBool("Dancing", false);
-            if (animator) animator.Play("IK_HAND", 0, 0);
+            if (animator) animator.SetBool("Dancing", false);
+            //if (animator) animator.Play("IK_HAND", 0, 0);
             //if (animator) animator.SetTrigger("StopDancing");
         }
 
