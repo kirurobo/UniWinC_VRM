@@ -90,8 +90,8 @@ Material:
     - _UvAnimScrollY: 0
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 0.59765613, g: 0.44531244, b: 0.39062488, a: 1}
+    - _Color: {r: 0.59765613, g: 0.44531244, b: 0.39062485, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _RimColor: {r: 0, g: 0, b: 0, a: 1}
-    - _ShadeColor: {r: 0.44765615, g: 0.2953124, b: 0.2406249, a: 1}
+    - _ShadeColor: {r: 0.44765615, g: 0.29531237, b: 0.24062487, a: 1}
