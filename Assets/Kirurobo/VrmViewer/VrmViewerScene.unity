@@ -707,7 +707,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &75554291
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5593,7 +5593,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'BGM Volume
+  m_Text: 'Volume
 
 '
 --- !u!222 &829613589
@@ -12862,6 +12862,7 @@ MonoBehaviour:
   motionTogglePreset: {fileID: 235421695}
   motionToggleRandom: {fileID: 314904125}
   motionToggleBvh: {fileID: 1020689045}
+  volumeSlider: {fileID: 1560741521}
   emotionToggleRandom: {fileID: 2088522888}
   blendShapeDropdown: {fileID: 680799682}
   blendShapeSlider: {fileID: 1128250704}
