@@ -176,7 +176,7 @@ namespace Kirurobo
             }
 
             animator = anim;
-            animator.applyRootMotion = true;
+            animator.applyRootMotion = false;
 
             if (this.runtimeAnimatorController)
             {

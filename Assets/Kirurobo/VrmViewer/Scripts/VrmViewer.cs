@@ -417,7 +417,7 @@ namespace Kirurobo
                 var characterController = model.gameObject.AddComponent<VrmCharacterBehaviour>();
                 characterController.runtimeAnimatorController = this.animatorController;
 
-                //SetMotion(motion, model, meta);
+                SetMotion(motion, model, meta);
 
                 if (uiController)
                 {
