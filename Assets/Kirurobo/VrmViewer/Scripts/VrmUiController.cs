@@ -467,6 +467,7 @@ namespace Kirurobo
         private void windowController_OnStateChanged()
         {
             UpdateUI();
+            //if (windowController.isReady) isFirstUpdate = false;
         }
 
         /// <summary>
@@ -474,7 +475,7 @@ namespace Kirurobo
         /// </summary>
         public void UpdateUI()
         {
-            if (!windowController)
+            if (windowController)
             {
                 if (transparentToggle)
                 {

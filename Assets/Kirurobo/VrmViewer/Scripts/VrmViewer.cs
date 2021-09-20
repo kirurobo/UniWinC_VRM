@@ -11,7 +11,6 @@ using UniHumanoid;
 using UnityEngine;
 using UnityEngine.Networking;
 using VRM;
-using Kirurobo;
 using UniGLTF;
 using SFB;
 
