@@ -117,15 +117,22 @@ namespace Kirurobo
                             new ExtensionFilter("VRM files", "vrm" ),
                             new ExtensionFilter("All files", "*" ),
                         };
-                        StandaloneFileBrowser.OpenFilePanelAsync(
+                        //StandaloneFileBrowser.OpenFilePanelAsync(
+                        //    "Open",
+                        //    "",
+                        //    extensions,
+                        //    false,
+                        //    (path) =>
+                        //    {
+                        //        if (path != null && path.Length > 0) LoadFile(path[0]);
+                        //    });
+                        var path = StandaloneFileBrowser.OpenFilePanel(
                             "Open",
                             "",
                             extensions,
-                            false,
-                            (path)=>
-                            {
-                                if (path.Length > 0) LoadFile(path[0]);
-                            });
+                            false
+                            );
+                        if (path != null && path.Length > 0) LoadFile(path[0]);
                         //string path = windowController.ShowOpenFileDialog("All supported files|*.vrm;*.bvh;*.wav;*.ogg|VRM file|*.vrm|Motion file|*.bvh|Audio file|*.wav;*.ogg|All file|*.*");
                         //LoadFile(path);
                     });
