@@ -76,6 +76,7 @@ namespace Kirurobo
         private Animator animator;
         private AnimatorStateInfo currentState; // 現在のステート状態を保存する参照
         private AnimatorStateInfo previousState; // ひとつ前のステート状態を保存する参照
+        public RuntimeAnimatorController runtimeAnimatorController;
 
         public MotionMode motionMode = MotionMode.Default;
 
@@ -89,7 +90,7 @@ namespace Kirurobo
 
         private Camera currentCamera;
         private VrmUiController uiController;
-
+        private AudioSource refAudioSource;
 
         // Use this for initialization
         void Start()
@@ -126,9 +127,17 @@ namespace Kirurobo
             if (!uiController)
             {
                 uiController = FindObjectOfType<VrmUiController>();
+                uiController.OnMotionChanged += SetMotionMode;
+            }
+
+            // AudioSourceを取得
+            if (!refAudioSource)
+            {
+                refAudioSource = FindObjectOfType<AudioSource>();
             }
 
             SetAnimator(GetComponent<Animator>());
+
 
             currentState = animator.GetCurrentAnimatorStateInfo(0);
             previousState = currentState;
@@ -167,12 +176,49 @@ namespace Kirurobo
             }
 
             animator = anim;
-            animator.applyRootMotion = true;
+            animator.applyRootMotion = false;
+
+            if (this.runtimeAnimatorController)
+            {
+                animator.runtimeAnimatorController = RuntimeAnimatorController.Instantiate(this.runtimeAnimatorController);
+            }
+
+            //animator.applyRootMotion = false;
+
+            //animator.StartPlayback();
+
+            if (motionMode == MotionMode.Bvh)
+            {
+                StartDance();
+            }
+            else
+            {
+                StopDance();
+            }
         }
 
         public void SetMotionMode(MotionMode mode)
         {
-            motionMode = mode;
+            if (!animator)
+            {
+                motionMode = mode;
+            }
+            else if (motionMode == MotionMode.Bvh && mode != MotionMode.Bvh)
+            {
+                // ダンス中からダンス以外になったら、ダンスは停止
+                StopDance();
+                motionMode = mode;
+            }
+            else if (motionMode != MotionMode.Bvh && mode == MotionMode.Bvh)
+            {
+                // ダンス以外からダンスになったら、ダンスを開始
+                motionMode = mode;
+                StartDance();
+            }
+            else
+            {
+                motionMode = mode;
+            }
         }
 
         /// <summary>
@@ -477,5 +523,60 @@ namespace Kirurobo
 
             }
         }
+
+
+        #region UnityChan Candy Rock Star 用
+
+        public void StartDance()
+        {
+            // 音楽は停止状態から
+            if (refAudioSource)
+            {
+                refAudioSource.Pause();
+                refAudioSource.time = 0;
+            }
+            if (animator) animator.SetBool("Dancing", true);
+            //if (animator) animator.Play("003_NOT01_Final", 0, 0);
+            //if (animator) animator.SetTrigger("StartDancing");
+        }
+
+        public void StopDance()
+        {
+            if (refAudioSource) refAudioSource.Pause();
+            if (animator) animator.SetBool("Dancing", false);
+            //if (animator) animator.Play("IK_HAND", 0, 0);
+            //if (animator) animator.SetTrigger("StopDancing");
+        }
+
+        // UnityChan.FaceUpdate の代わりに受け取るイベントコール
+        public void OnCallChangeFace(string str)
+        {
+            // 何もしない
+        }
+
+        // UnityChan.MusicStarter の代わりに受け取るイベントコール
+        public void OnCallMusicPlay(string str)
+        {
+            switch (str)
+            {
+                // 文字列playを指定で再生開始
+                case "play":
+                    if (refAudioSource) refAudioSource.Play();
+                    break;
+
+                // 文字列stopを指定で再生停止
+                case "stop":
+                    if (refAudioSource) refAudioSource.Stop();
+                    break;
+
+                // それ以外はポーズ
+                default:
+                    if (refAudioSource) refAudioSource.Pause();
+                    break;
+            }
+        }
+
+        #endregion
+
     }
 }

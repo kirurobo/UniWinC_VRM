@@ -11,7 +11,7 @@ using UniHumanoid;
 using UnityEngine;
 using UnityEngine.Networking;
 using VRM;
-using Kirurobo;
+using UniGLTF;
 using SFB;
 
 namespace Kirurobo
@@ -25,7 +25,6 @@ namespace Kirurobo
 
         private UniWindowController windowController;
 
-        private VRMImporterContext context;
         private HumanPoseTransfer model;
         private HumanPoseTransfer motion;
         private VRMMetaObject meta;
@@ -38,7 +37,7 @@ namespace Kirurobo
 
         public AudioSource audioSource;
 
-        public Animator animator;
+        public RuntimeAnimatorController animatorController;
 
         public VrmCharacterBehaviour.MotionMode motionMode
         {
@@ -60,10 +59,10 @@ namespace Kirurobo
 
             uiController.enableRandomMotion = true;
             uiController.enableRandomEmotion = true;
-            if (uiController.motionToggleRandom)
-            {
-                uiController.motionToggleRandom.onValueChanged.AddListener(val => SetRandomMotion(val));
-            }
+            //if (uiController.motionToggleRandom)
+            //{
+            //    uiController.motionToggleRandom.onValueChanged.AddListener(val => SetRandomMotion(val));
+            //}
 
             if (uiController.emotionToggleRandom)
             {
@@ -87,7 +86,7 @@ namespace Kirurobo
             }
 
             // Load the initial model.
-            LoadModel(Application.streamingAssetsPath + "/default_vrm.vrm");
+            LoadModel(Application.streamingAssetsPath + "/default.vrm");
 
             //// 引数でオプションが渡る場合の処理が面倒なため、引数でモデル指定は無しとする
             //string[] cmdArgs = System.Environment.GetCommandLineArgs();
@@ -114,21 +113,25 @@ namespace Kirurobo
                     uiController.openButton.onClick.AddListener(() =>
                     {
                         var extensions = new [] {
-                            new ExtensionFilter("All supported files", "vrm", "bvh", "ogg", "wav" ),
                             new ExtensionFilter("VRM files", "vrm" ),
-                            new ExtensionFilter("Motion files", "bvh" ),
-                            new ExtensionFilter("Audio files", "ogg", "wav" ),
                             new ExtensionFilter("All files", "*" ),
                         };
-                        StandaloneFileBrowser.OpenFilePanelAsync(
+                        //StandaloneFileBrowser.OpenFilePanelAsync(
+                        //    "Open",
+                        //    "",
+                        //    extensions,
+                        //    false,
+                        //    (path) =>
+                        //    {
+                        //        if (path != null && path.Length > 0) LoadFile(path[0]);
+                        //    });
+                        var path = StandaloneFileBrowser.OpenFilePanel(
                             "Open",
                             "",
                             extensions,
-                            false,
-                            (path)=>
-                            {
-                                LoadFile(path[0]);
-                            });
+                            false
+                            );
+                        if (path != null && path.Length > 0) LoadFile(path[0]);
                         //string path = windowController.ShowOpenFileDialog("All supported files|*.vrm;*.bvh;*.wav;*.ogg|VRM file|*.vrm|Motion file|*.bvh|Audio file|*.wav;*.ogg|All file|*.*");
                         //LoadFile(path);
                     });
@@ -231,27 +234,27 @@ namespace Kirurobo
                 return;
             }
 
-            // Open the motion file if its extension is ".bvh" or ".txt".
-            if (ext == ".bvh" || ext == ".txt")
-            {
-                LoadMotion(path);
-                return;
-            }
+            //// Open the motion file if its extension is ".bvh" or ".txt".
+            //if (ext == ".bvh" || ext == ".txt")
+            //{
+            //    LoadMotion(path);
+            //    return;
+            //}
 
-            // Open the audio file.
-            // mp3はライセンスの関係でWindowsスタンドアローンでは読み込めないよう。
-            // 参考 https://docs.unity3d.com/jp/460/ScriptReference/WWW.GetAudioClip.html
-            // 参考 https://answers.unity.com/questions/433428/load-mp3-from-harddrive-on-pc-again.html
-            if (ext == ".ogg")
-            {
-                LoadAudio(path, AudioType.OGGVORBIS);
-                return;
-            }
-            else if (ext == ".wav")
-            {
-                LoadAudio(path, AudioType.WAV);
-                return;
-            }
+            //// Open the audio file.
+            //// mp3はライセンスの関係でWindowsスタンドアローンでは読み込めないよう。
+            //// 参考 https://docs.unity3d.com/jp/460/ScriptReference/WWW.GetAudioClip.html
+            //// 参考 https://answers.unity.com/questions/433428/load-mp3-from-harddrive-on-pc-again.html
+            //if (ext == ".ogg")
+            //{
+            //    LoadAudio(path, AudioType.OGGVORBIS);
+            //    return;
+            //}
+            //else if (ext == ".wav")
+            //{
+            //    LoadAudio(path, AudioType.WAV);
+            //    return;
+            //}
         }
 
         /// <summary>
@@ -269,41 +272,23 @@ namespace Kirurobo
             // Apply the motion if AllowedUser is equal to "Everyone".
             if (meta.AllowedUser == AllowedUser.Everyone)
             {
-                _motionMode = VrmCharacterBehaviour.MotionMode.Default;
+                //_motionMode = VrmCharacterBehaviour.MotionMode.Default;
                 if (uiController)
                 {
                     _motionMode = uiController.motionMode;
                     characterController.randomEmotion = uiController.enableRandomEmotion;
                 }
 
-                if (_motionMode != VrmCharacterBehaviour.MotionMode.Bvh)
-                {
-                    var anim = model.GetComponent<Animator>();
-                    if (anim && this.animator)
-                    {
-                        anim.runtimeAnimatorController = this.animator.runtimeAnimatorController;
-                    }
-
-                    characterController.SetAnimator(anim);
-                }
-                else
-                {
-                    var anim = model.GetComponent<Animator>();
-                    if (anim)
-                    {
-                        anim.runtimeAnimatorController = null;
-                    }
-
-                    characterController.SetAnimator(anim);
-
-                    if (motion)
-                    {
-                        model.Source = motion;
-                        model.SourceType = HumanPoseTransfer.HumanPoseTransferSourceType.HumanPoseTransfer;
-                    }
-                }
-
+                //var anim = model.GetComponent<Animator>();
+                //if (anim && this.animatorController)
+                //{
+                //    //anim.runtimeAnimatorController = this.animatorController;
+                //    anim.runtimeAnimatorController = (RuntimeAnimatorController)RuntimeAnimatorController.Instantiate(this.animatorController);
+                //    anim.applyRootMotion = true;
+                //}
+                //characterController.SetAnimator(anim);
                 characterController.SetMotionMode(_motionMode);
+
             }
             else
             {
@@ -314,76 +299,76 @@ namespace Kirurobo
             }
         }
 
-        /// <summary>
-        /// Load the motion from a BVH file.
-        /// </summary>
-        /// <param name="path"></param>
-        private void LoadMotion(string path)
-        {
-            if (!File.Exists(path))
-            {
-                Debug.Log("Motion " + path + " is not exits.");
-                return;
-            }
+        ///// <summary>
+        ///// Load the motion from a BVH file.
+        ///// </summary>
+        ///// <param name="path"></param>
+        //private void LoadMotion(string path)
+        //{
+        //    if (!File.Exists(path))
+        //    {
+        //        Debug.Log("Motion " + path + " is not exits.");
+        //        return;
+        //    }
 
-            var characterController = model.GetComponent<VrmCharacterBehaviour>();
-            GameObject newMotionObject = null;
+        //    var characterController = model.GetComponent<VrmCharacterBehaviour>();
+        //    GameObject newMotionObject = null;
 
-            try
-            {
-                BvhImporterContext context = new BvhImporterContext();
-                //Debug.Log("Loading motion : " + path);
+        //    try
+        //    {
+        //        BvhImporterContext context = new BvhImporterContext();
+        //        //Debug.Log("Loading motion : " + path);
 
-                context.Parse(path);
-                context.Load();
-                newMotionObject = context.Root;
+        //        context.Parse(path);
+        //        context.Load();
+        //        newMotionObject = context.Root;
 
-                // Hide the motion model
-                Renderer renderer = newMotionObject.GetComponent<Renderer>();
-                if (renderer)
-                {
-                    renderer.enabled = false;
-                }
-            }
-            catch (Exception ex)
-            {
-                if (uiController)
-                {
-                    uiController.motionMode = VrmCharacterBehaviour.MotionMode.Default;
-                    uiController.ShowWarning("Motion load failed.");
-                }
+        //        // Hide the motion model
+        //        Renderer renderer = newMotionObject.GetComponent<Renderer>();
+        //        if (renderer)
+        //        {
+        //            renderer.enabled = false;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        if (uiController)
+        //        {
+        //            uiController.motionMode = VrmCharacterBehaviour.MotionMode.Default;
+        //            uiController.ShowWarning("Motion load failed.");
+        //        }
 
-                Debug.LogError("Failed loading " + path);
-                Debug.LogError(ex);
-                return;
-            }
+        //        Debug.LogError("Failed loading " + path);
+        //        Debug.LogError(ex);
+        //        return;
+        //    }
 
-            if (newMotionObject)
-            {
-                if (motion)
-                {
-                    GameObject.Destroy(motion.gameObject);
-                }
+        //    if (newMotionObject)
+        //    {
+        //        if (motion)
+        //        {
+        //            GameObject.Destroy(motion.gameObject);
+        //        }
 
-                motion = newMotionObject.GetComponent<HumanPoseTransfer>();
+        //        motion = newMotionObject.GetComponent<HumanPoseTransfer>();
 
-                // 読み込みが成功したら、モーションの選択肢はBVHとする
-                _motionMode = VrmCharacterBehaviour.MotionMode.Bvh;
-                SetMotion(motion, model, meta);
+        //        // 読み込みが成功したら、モーションの選択肢はBVHとする
+        //        _motionMode = VrmCharacterBehaviour.MotionMode.Bvh;
+        //        SetMotion(motion, model, meta);
 
-                if (uiController)
-                {
-                    uiController.motionMode = VrmCharacterBehaviour.MotionMode.Bvh;
-                }
+        //        if (uiController)
+        //        {
+        //            uiController.motionMode = VrmCharacterBehaviour.MotionMode.Bvh;
+        //        }
 
-                // Play loaded audio if available
-                if (audioSource && audioSource.clip && audioSource.clip.loadState == AudioDataLoadState.Loaded)
-                {
-                    audioSource.Stop();
-                    audioSource.Play();
-                }
-            }
-        }
+        //        // Play loaded audio if available
+        //        if (audioSource && audioSource.clip && audioSource.clip.loadState == AudioDataLoadState.Loaded)
+        //        {
+        //            audioSource.Stop();
+        //            audioSource.Play();
+        //        }
+        //    }
+        //}
 
         /// <summary>
         /// Unload the old model and load the new model from VRM file.
@@ -402,14 +387,19 @@ namespace Kirurobo
             try
             {
                 // Load from a VRM file.
-                context = new VRMImporterContext();
-                //Debug.Log("Loading model : " + path);
+                var gltfData = new GlbFileParser(path).Parse();
+                var vrmData = new VRMData(gltfData);
 
-                context.Load(path);
-                newModelObject = context.Root;
-                meta = context.ReadMeta(true);
+                using (var context = new VRMImporterContext(vrmData))
+                {
+                    var instance = context.Load();
+                    instance.EnableUpdateWhenOffscreen();
 
-                context.ShowMeshes();
+                    newModelObject = instance.Root;
+                    meta = context.ReadMeta(true);
+
+                    instance.ShowMeshes();
+                }
             }
             catch (Exception ex)
             {
@@ -426,13 +416,12 @@ namespace Kirurobo
                     GameObject.Destroy(model.gameObject);
                 }
 
-                Resources.UnloadUnusedAssets();
-
                 model = newModelObject.AddComponent<HumanPoseTransfer>();
 
                 CreateColliders(model.gameObject);
 
                 var characterController = model.gameObject.AddComponent<VrmCharacterBehaviour>();
+                characterController.runtimeAnimatorController = this.animatorController;
 
                 SetMotion(motion, model, meta);
 
@@ -447,6 +436,16 @@ namespace Kirurobo
                     }
 
                 }
+            }
+        }
+        
+        RuntimeGltfInstance LoadVrm(VRMData vrm)
+        {
+            using (var loader = new VRMImporterContext(vrm))
+            {
+                //var instance = await loader.LoadAsync();
+                var instance = loader.Load();
+                return instance;
             }
         }
 

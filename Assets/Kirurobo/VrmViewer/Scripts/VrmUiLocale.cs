@@ -63,6 +63,7 @@ namespace Kirurobo
 
             var transforms = targetTransform.GetComponentsInChildren<Transform>(true);
 
+            SetText(ref transforms, "WindowText", localeText.labels.Window);
             SetText(ref transforms, "TransparentToggle", localeText.labels.Transparent);
             SetText(ref transforms, "TopmostToggle", localeText.labels.Topmost);
             SetText(ref transforms, "MaximizeToggle", localeText.labels.Maximize);
@@ -75,6 +76,7 @@ namespace Kirurobo
             SetText(ref transforms, "MotionTogglePreset", localeText.labels.Preset);
             SetText(ref transforms, "MotionToggleRandom", localeText.labels.Random);
             SetText(ref transforms, "MotionToggleBvh", localeText.labels.Bvh);
+            SetText(ref transforms, "VolumeText", localeText.labels.Volume);
             SetText(ref transforms, "BlendShapeDropdown", localeText.labels.Emotion);
             SetText(ref transforms, "EmotionModeText", localeText.labels.Emotion);
             SetText(ref transforms, "EmotionToggleRandom", localeText.labels.Random);
@@ -129,8 +131,8 @@ namespace Kirurobo
         public struct Labels
         {
             public string Motion, Emotion;
-            public string Transparent, Topmost, Maximize;
-            public string Language, ZoomType, TransparentType, HitTestType, None, Preset, Random, Bvh, Repeat;
+            public string Window, Transparent, Topmost, Maximize;
+            public string Language, ZoomType, TransparentType, HitTestType, None, Preset, Random, Dance, Bvh, Volume, Repeat;
         }
 
         [System.Serializable]
