@@ -270,9 +270,16 @@ namespace Kirurobo
 
             if (volumeSlider)
             {
+                // AudioSourceの最大音量
+                const float maxSourceVolume = 0.2f;
+
                 audioSource = FindObjectOfType<AudioSource>();
+
+                // 今の設定で音量を調整しておく
+                audioSource.volume = maxSourceVolume * volumeSlider.value;
+
                 if (audioSource) {
-                    volumeSlider.onValueChanged.AddListener(val => audioSource.volume = val);
+                    volumeSlider.onValueChanged.AddListener(val => audioSource.volume = (maxSourceVolume * val));
                  }
             }
 
@@ -299,6 +306,8 @@ namespace Kirurobo
 
             PlayerPrefs.SetInt("VrmCharacterBehaviour.MotionMode", (int) motionMode);
             PlayerPrefs.SetInt("EmotionMode", enableRandomEmotion ? 1 : 0);
+            
+            if (volumeSlider) PlayerPrefs.SetFloat("Volume", volumeSlider.value);
         }
 
         public void Load()
@@ -331,6 +340,8 @@ namespace Kirurobo
             SetTransparentType(PlayerPrefs.GetInt("TransparentType", defaultTransparentTypeIndex));
             SetHitTestType(PlayerPrefs.GetInt("HitTestType", defaultHitTestTypeIndex));
             SetLanguage(PlayerPrefs.GetInt("Language", defaultLanguageIndex));
+
+            if (volumeSlider) volumeSlider.value = PlayerPrefs.GetFloat("Volume", volumeSlider.value);
 
             motionMode =
                 (VrmCharacterBehaviour.MotionMode) PlayerPrefs.GetInt("VrmCharacterBehaviour.MotionMode",

@@ -1224,7 +1224,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 1600}
+  m_SizeDelta: {x: 0, y: 800}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &153351373
 GameObject:
@@ -2304,7 +2304,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1930126394}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.270625
+  m_Size: 0.54125
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -5245,7 +5245,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: '[F11]'
+  m_Text: '[F] key'
 --- !u!222 &793215971
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -9964,14 +9964,14 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "<size=20><b>UniVRM</b></size>\n<i>https://github.com/vrm-c/UniVRM/</i>\n\nMIT
+  m_Text: "<size=20><b>UniVRM</b></size>\n<i>https://github.com/vrm-c/UniVRM</i>\n\nMIT
     License\n\nCopyright (c) 2020 VRM Consortium\nCopyright (c) 2018 Masataka SUMI
-    for MToon\n\n\n<size=20><b>VRMLoaderUI</b></size>\n<i>https://github.com/vrm-c/UniVRM</i>\n\nMIT
+    for MToon\n\n\n<size=20><b>VRMLoaderUI</b></size>\n<i>https://github.com/m2wasabi/VRMLoaderUI</i>\n\nMIT
     License\n\nCopyright (c) 2018 m2wasabi\n\n\n<size=20><b>UnityStandaloneFileBrowser</b></size>\n<i>https://github.com/gkngkc/UnityStandaloneFileBrowser/</i>\n\nMIT
     License\r\n\r\nCopyright (c) 2017 G\xF6khan G\xF6k\xE7e\r\n\r\n\n<size=20><b>HumanoidCollider</b></size>\n<i>https://github.com/yuzu-unity/HumanoidCollider/</i>\n\nFree\n\n\n<size=20><b>UNITE
     IN THE SKY and motions</b></size>\n<i>https://unity-chan.com/</i>\n\n(c) Unity
     Technologies Japan/UCL\n\n\n<size=20><b>UniWindowController (UniWinC)</b></size>\n<i>https://github.com/kirurobo/UniWindowController/</i>\n\nMIT
-    License\r\n\r\nCopyright (c) 2020-2021 Kirurobo\r\n\r"
+    License\r\n\r\nCopyright (c) 2020 Kirurobo\r\n\r"
 --- !u!222 &1387013661
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -10923,7 +10923,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: '[Home]'
+  m_Text: '[O] key'
 --- !u!222 &1523143403
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -11199,9 +11199,9 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1684559438}
   m_Direction: 0
   m_MinValue: 0
-  m_MaxValue: 0.2
+  m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 0.1
+  m_Value: 0.5
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -11680,7 +11680,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: '[End]'
+  m_Text: '[T] key'
 --- !u!222 &1627443114
 CanvasRenderer:
   m_ObjectHideFlags: 0
