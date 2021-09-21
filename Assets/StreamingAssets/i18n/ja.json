@@ -5,7 +5,7 @@
     "Window": "ウィンドウ",
     "Transparent": "透明化",
     "Topmost": "最前面",
-    "Maximize": "最大化",
+    "Zoomed": "最大化",
     "TransparentType": "透明化方式",
     "HitTestType": "ヒットテスト方式",
     "ZoomType":  "ズーム方法",
@@ -13,7 +13,7 @@
     "None": "なし",
     "Preset": "既定",
     "Random": "ランダム",
-    "Dande": "ダンス",
+    "Dance": "ダンス",
     "Bvh": "読み込んだBVH",
     "Volume": "音量",
     "Repeat": "繰り返し"

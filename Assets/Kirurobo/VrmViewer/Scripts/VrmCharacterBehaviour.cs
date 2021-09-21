@@ -37,6 +37,7 @@ namespace Kirurobo
             Default = 0,
             Random = 1,
             Bvh = 2,
+            Dance = 3,
         }
 
         /// <summary>
@@ -187,7 +188,7 @@ namespace Kirurobo
 
             //animator.StartPlayback();
 
-            if (motionMode == MotionMode.Bvh)
+            if (motionMode == MotionMode.Dance)
             {
                 StartDance();
             }
@@ -203,13 +204,13 @@ namespace Kirurobo
             {
                 motionMode = mode;
             }
-            else if (motionMode == MotionMode.Bvh && mode != MotionMode.Bvh)
+            else if (motionMode == MotionMode.Dance && mode != MotionMode.Dance)
             {
                 // ダンス中からダンス以外になったら、ダンスは停止
                 StopDance();
                 motionMode = mode;
             }
-            else if (motionMode != MotionMode.Bvh && mode == MotionMode.Bvh)
+            else if (motionMode != MotionMode.Dance && mode == MotionMode.Dance)
             {
                 // ダンス以外からダンスになったら、ダンスを開始
                 motionMode = mode;
@@ -430,7 +431,7 @@ namespace Kirurobo
             if (!animator || !rightHandTransform || !leftHandTransform) return;
 
             // BVH再生中はスキップ
-            if (motionMode == MotionMode.Bvh) return;
+            if (motionMode == MotionMode.Dance) return;
 
             bool isRightHandMoved = false;
             bool isLeftHandMoved = false;

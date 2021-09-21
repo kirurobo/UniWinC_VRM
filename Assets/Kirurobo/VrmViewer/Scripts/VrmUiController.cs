@@ -16,6 +16,7 @@ namespace Kirurobo
         /// </summary>
         const float prefsVersion = 0.02f;
 
+        [HideInInspector]
         public UniWindowController windowController;
 
         public RectTransform panel;
@@ -37,7 +38,7 @@ namespace Kirurobo
         public Dropdown languageDropdown;
         public Toggle motionTogglePreset;
         public Toggle motionToggleRandom;
-        public Toggle motionToggleBvh;
+        public Toggle motionToggleDance;
         public Slider volumeSlider;
         public Toggle emotionToggleRandom;
         public Dropdown blendShapeDropdown;
@@ -109,7 +110,7 @@ namespace Kirurobo
             get
             {
                 if (motionToggleRandom && motionToggleRandom.isOn) return VrmCharacterBehaviour.MotionMode.Random;
-                if (motionToggleBvh && motionToggleBvh.isOn) return VrmCharacterBehaviour.MotionMode.Bvh;
+                if (motionToggleDance && motionToggleDance.isOn) return VrmCharacterBehaviour.MotionMode.Dance;
                 return VrmCharacterBehaviour.MotionMode.Default;
             }
             set
@@ -145,9 +146,9 @@ namespace Kirurobo
             if (value == VrmCharacterBehaviour.MotionMode.Random)
             {
                 if (motionTogglePreset) motionTogglePreset.isOn = false;
-                if (motionToggleBvh) motionToggleBvh.isOn = false;
+                if (motionToggleDance) motionToggleDance.isOn = false;
             }
-            else if (value == VrmCharacterBehaviour.MotionMode.Bvh)
+            else if (value == VrmCharacterBehaviour.MotionMode.Dance)
             {
                 if (motionTogglePreset) motionTogglePreset.isOn = false;
                 if (motionToggleRandom) motionToggleRandom.isOn = false;
@@ -155,7 +156,7 @@ namespace Kirurobo
             else
             {
                 if (motionToggleRandom) motionToggleRandom.isOn = false;
-                if (motionToggleBvh) motionToggleBvh.isOn = false;
+                if (motionToggleDance) motionToggleDance.isOn = false;
             }
 
             motionMode = value;
@@ -234,12 +235,12 @@ namespace Kirurobo
             // タイトルのバージョン番号を追加
             if (titleText)
             {
-                titleText.text = Application.productName + " " + Application.version;
+                titleText.text = Application.productName + " Ver." + Application.version;
             }
 
             //if (emotionToggleRandom) { emotionToggleRandom.onValueChanged.AddListener(val => enableRandomEmotion = val); }
             if (motionTogglePreset) { motionTogglePreset.onValueChanged.AddListener(val => OnMotionToggleClicked(VrmCharacterBehaviour.MotionMode.Default)); }
-            if (motionToggleBvh) { motionToggleBvh.onValueChanged.AddListener(val => OnMotionToggleClicked(VrmCharacterBehaviour.MotionMode.Bvh)); }
+            if (motionToggleDance) { motionToggleDance.onValueChanged.AddListener(val => OnMotionToggleClicked(VrmCharacterBehaviour.MotionMode.Dance)); }
             //if (motionToggleRandom) { motionToggleRandom.onValueChanged.AddListener(val => motionMode = VrmCharacterBehaviour.MotionMode.Random); }
 
             // 直接バインドしない項目の初期値とイベントリスナーを設定
@@ -269,9 +270,16 @@ namespace Kirurobo
 
             if (volumeSlider)
             {
+                // AudioSourceの最大音量
+                const float maxSourceVolume = 0.2f;
+
                 audioSource = FindObjectOfType<AudioSource>();
+
+                // 今の設定で音量を調整しておく
+                audioSource.volume = maxSourceVolume * volumeSlider.value;
+
                 if (audioSource) {
-                    volumeSlider.onValueChanged.AddListener(val => audioSource.volume = val);
+                    volumeSlider.onValueChanged.AddListener(val => audioSource.volume = (maxSourceVolume * val));
                  }
             }
 
@@ -298,6 +306,8 @@ namespace Kirurobo
 
             PlayerPrefs.SetInt("VrmCharacterBehaviour.MotionMode", (int) motionMode);
             PlayerPrefs.SetInt("EmotionMode", enableRandomEmotion ? 1 : 0);
+            
+            if (volumeSlider) PlayerPrefs.SetFloat("Volume", volumeSlider.value);
         }
 
         public void Load()
@@ -330,6 +340,8 @@ namespace Kirurobo
             SetTransparentType(PlayerPrefs.GetInt("TransparentType", defaultTransparentTypeIndex));
             SetHitTestType(PlayerPrefs.GetInt("HitTestType", defaultHitTestTypeIndex));
             SetLanguage(PlayerPrefs.GetInt("Language", defaultLanguageIndex));
+
+            if (volumeSlider) volumeSlider.value = PlayerPrefs.GetFloat("Volume", volumeSlider.value);
 
             motionMode =
                 (VrmCharacterBehaviour.MotionMode) PlayerPrefs.GetInt("VrmCharacterBehaviour.MotionMode",
