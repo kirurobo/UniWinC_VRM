@@ -5,7 +5,7 @@
     "Window": "Window",
     "Transparent": "Transparent",
     "Topmost": "Topmost",
-    "Maximize": "Maximize",
+    "Zoomed": "Maximize",
     "TransparentType": "Transparent type",
     "HitTestType": "Hit test type",
     "ZoomType": "Zoom type",

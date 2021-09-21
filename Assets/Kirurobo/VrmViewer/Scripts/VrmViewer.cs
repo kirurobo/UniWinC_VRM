@@ -173,20 +173,20 @@ namespace Kirurobo
                 }
             }
 
-            // End を押すとウィンドウ透過切替
-            if (Input.GetKeyDown(KeyCode.End))
+            // [T] キーを押すとウィンドウ透過切替
+            if (Input.GetKeyDown(KeyCode.T))
             {
                 windowController.isTransparent = !windowController.isTransparent;
             }
 
-            // Home を押すと最前面切替
-            if (Input.GetKeyDown(KeyCode.Home))
+            // [O] キーを押すと最前面切替
+            if (Input.GetKeyDown(KeyCode.O))
             {
-                windowController.isZoomed = !windowController.isTopmost;
+                windowController.isTopmost = !windowController.isTopmost;
             }
 
-            // F11 を押すと最大化切替
-            if (Input.GetKeyDown(KeyCode.F11))
+            // [F] キーを押すと最大化切替
+            if (Input.GetKeyDown(KeyCode.F))
             {
                 windowController.isZoomed = !windowController.isZoomed;
             }
