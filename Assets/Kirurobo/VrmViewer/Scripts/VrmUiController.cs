@@ -18,6 +18,7 @@ namespace Kirurobo
 
         [HideInInspector]
         public UniWindowController windowController;
+        private CameraController cameraController;
 
         public RectTransform panel;
         public Text informationText;
@@ -70,6 +71,9 @@ namespace Kirurobo
         public motionChangedDelegate OnMotionChanged;
 
         private AudioSource audioSource;
+
+        public Material uiMaterial;
+
 
         /// <summary>
         /// ランダムモーションが有効かを取得／設定
@@ -162,6 +166,22 @@ namespace Kirurobo
             motionMode = value;
         }
 
+        void ApplyUiTextMaterial()
+        {
+            if (!uiMaterial) return;
+
+            var list = gameObject.GetComponentsInChildren<Text>();
+            foreach (var obj in list)
+            {
+                obj.material = uiMaterial;
+            }
+        }
+
+        private void Awake()
+        {
+            ApplyUiTextMaterial();
+        }
+
         /// <summary>
         /// Use this for initialization
         /// </summary>
@@ -183,6 +203,9 @@ namespace Kirurobo
 
                 transparentType = windowController.transparentType;
             }
+
+            // カメラ操作スクリプト
+            cameraController = FindObjectOfType<CameraController>();
 
             vrmLoaderLocale = this.GetComponentInChildren<VRMLoader.VRMPreviewLocale>();
             vrmLoaderUI = this.GetComponentInChildren<VRMLoader.VRMPreviewUI>();
@@ -515,6 +538,8 @@ namespace Kirurobo
         {
             panel.gameObject.SetActive(false);
             //Debug.Log("Close. Zoom:" + zoomMode + ", Trans.:" + transparentType + ", Lang.:" + language);
+
+            if (cameraController) cameraController.enableWheel = true;
         }
 
         /// <summary>
@@ -606,6 +631,8 @@ namespace Kirurobo
                 panel.anchoredPosition = pos;
                 panel.gameObject.SetActive(true);
             }
+
+            if (cameraController) cameraController.enableWheel = false;
         }
 
         /// <summary>
@@ -620,6 +647,8 @@ namespace Kirurobo
                 panel.anchoredPosition = originalAnchoredPosition;
                 panel.gameObject.SetActive(true);
             }
+
+            if (cameraController) cameraController.enableWheel = false;
         }
 
         /// <summary>
