@@ -40,6 +40,11 @@ namespace Kirurobo
         public Vector2 minimumAngles = new Vector2(-90f, -360f);
         public Vector2 maximumAngles = new Vector2(90f, 360f);
 
+        /// <summary>
+        /// trueの時のみホイール操作が有効
+        /// </summary>
+        public bool enableWheel = true;
+
         [Tooltip("None means to set the parent transform")]
         public Transform centerTransform; // 回転中心
 
@@ -151,7 +156,20 @@ namespace Kirurobo
 
         internal virtual void HandleMouse()
         {
-            if (Input.GetMouseButton(1))
+
+            if ((Input.GetMouseButton(2)) || (Input.GetMouseButton(1) && (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))))
+            {
+                // 中ボタンドラッグで並進移動
+                Vector3 screenVector = new Vector3(
+                    Input.GetAxis("Mouse X") * dragSensitivity,
+                    Input.GetAxis("Mouse Y") * dragSensitivity,
+                    0f
+                );
+                //translation -= transform.rotation * screenVector;
+                translation -= screenVector;
+                UpdateTransform();
+            }
+            else if (Input.GetMouseButton(1))
             {
                 // 右ボタンドラッグで回転
                 if ((axes & RotationAxes.Yaw) > RotationAxes.None)
@@ -168,26 +186,14 @@ namespace Kirurobo
 
                 UpdateTransform();
             }
-            else if (Input.GetMouseButton(2))
-            {
-                // 中ボタンドラッグで並進移動
-                Vector3 screenVector = new Vector3(
-                    Input.GetAxis("Mouse X") * dragSensitivity,
-                    Input.GetAxis("Mouse Y") * dragSensitivity,
-                    0f
-                );
-                //translation -= transform.rotation * screenVector;
-                translation -= screenVector;
-                UpdateTransform();
-            }
-            else
+            else if (enableWheel)
             {
                 // ホイールで接近・離脱
                 float wheelDelta = Input.GetAxis("Mouse ScrollWheel") * wheelSensitivity;
 
                 ZoomType type = zoomType;
 
-                // Shiftキーが押されていて、かつZoomModeがZoomかDollyならば、モードを入れ替える
+                // Ctrlキーが押されていて、かつZoomModeがZoomかDollyならば、モードを入れ替える
                 if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                 {
                     if (type == ZoomType.Dolly)

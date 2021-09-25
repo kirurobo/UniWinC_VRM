@@ -11729,6 +11729,7 @@ MonoBehaviour:
   wheelSensitivity: 0.5
   minimumAngles: {x: -90, y: -360}
   maximumAngles: {x: 90, y: 360}
+  enableWheel: 1
   centerTransform: {fileID: 0}
   distance: 0
 --- !u!81 &1629460658
@@ -12897,6 +12898,7 @@ MonoBehaviour:
   tabButtonControl: {fileID: 1866818129}
   modelPanel: {fileID: 1456790165}
   controlPanel: {fileID: 339774397}
+  uiMaterial: {fileID: 2100000, guid: e326b2a780feee841b7b67624e004a2e, type: 2}
 --- !u!114 &1787938568
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15376,6 +15378,7 @@ MonoBehaviour:
   wheelSensitivity: 0.2
   minimumAngles: {x: -90, y: -360}
   maximumAngles: {x: 90, y: 360}
+  enableWheel: 1
   centerTransform: {fileID: 241398689}
   distance: 10
 --- !u!1 &2144075834
