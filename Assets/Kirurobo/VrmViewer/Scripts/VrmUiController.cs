@@ -499,7 +499,7 @@ namespace Kirurobo
             }
         }
 
-        private void windowController_OnStateChanged()
+        private void windowController_OnStateChanged(UniWindowController.WindowStateEventType type)
         {
             UpdateUI();
             //if (windowController.isReady) isFirstUpdate = false;
