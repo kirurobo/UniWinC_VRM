@@ -12,7 +12,6 @@ using UnityEngine;
 using UnityEngine.Networking;
 using VRM;
 using UniGLTF;
-using SFB;
 
 namespace Kirurobo
 {
@@ -112,28 +111,19 @@ namespace Kirurobo
                 {
                     uiController.openButton.onClick.AddListener(() =>
                     {
-                        var extensions = new [] {
-                            new ExtensionFilter("VRM files", "vrm" ),
-                            new ExtensionFilter("All files", "*" ),
-                        };
-                        //StandaloneFileBrowser.OpenFilePanelAsync(
-                        //    "Open",
-                        //    "",
-                        //    extensions,
-                        //    false,
-                        //    (path) =>
-                        //    {
-                        //        if (path != null && path.Length > 0) LoadFile(path[0]);
-                        //    });
-                        var path = StandaloneFileBrowser.OpenFilePanel(
-                            "Open",
-                            "",
-                            extensions,
-                            false
-                            );
-                        if (path != null && path.Length > 0) LoadFile(path[0]);
-                        //string path = windowController.ShowOpenFileDialog("All supported files|*.vrm;*.bvh;*.wav;*.ogg|VRM file|*.vrm|Motion file|*.bvh|Audio file|*.wav;*.ogg|All file|*.*");
-                        //LoadFile(path);
+                        FilePanel.OpenFilePanel(
+                            new FilePanel.Settings()
+                            {
+                                title = "Open VRM file",
+                                filters = new FilePanel.Filter[]
+                                {
+                                    new FilePanel.Filter("VRM files (*.vrm)", "vrm"),
+                                    //new FilePanel.Filter("All files (*.*)", "*"),
+                                },
+                            },
+                            (path) => {
+                                if (path.Length > 0) LoadFile(path[0]);
+                            });
                     });
                 }
             }
