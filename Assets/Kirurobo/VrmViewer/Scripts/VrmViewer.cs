@@ -7,12 +7,12 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using UniHumanoid;
 using UnityEngine;
 using UnityEngine.Networking;
 using VRM;
 using UniGLTF;
-using SFB;
 
 namespace Kirurobo
 {
@@ -112,28 +112,20 @@ namespace Kirurobo
                 {
                     uiController.openButton.onClick.AddListener(() =>
                     {
-                        var extensions = new [] {
-                            new ExtensionFilter("VRM files", "vrm" ),
-                            new ExtensionFilter("All files", "*" ),
+                        var filters = new []
+                        {
+                            new FilePanel.Filter("VRM files (.vrm)", "vrm"),
+                            new FilePanel.Filter("All files", "*"),
                         };
-                        //StandaloneFileBrowser.OpenFilePanelAsync(
-                        //    "Open",
-                        //    "",
-                        //    extensions,
-                        //    false,
-                        //    (path) =>
-                        //    {
-                        //        if (path != null && path.Length > 0) LoadFile(path[0]);
-                        //    });
-                        var path = StandaloneFileBrowser.OpenFilePanel(
-                            "Open",
-                            "",
-                            extensions,
-                            false
+                        FilePanel.OpenFilePanel(
+                                new FilePanel.Settings()
+                                {
+                                    filters = filters,
+                                    flags = FilePanel.Flag.FileMustExist,
+                                    title = "Open a VRM",
+                                },
+                                (path => LoadFile(path.First()))
                             );
-                        if (path != null && path.Length > 0) LoadFile(path[0]);
-                        //string path = windowController.ShowOpenFileDialog("All supported files|*.vrm;*.bvh;*.wav;*.ogg|VRM file|*.vrm|Motion file|*.bvh|Audio file|*.wav;*.ogg|All file|*.*");
-                        //LoadFile(path);
                     });
                 }
             }
