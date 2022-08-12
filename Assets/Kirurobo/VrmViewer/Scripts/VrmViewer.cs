@@ -12,6 +12,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using VRM;
 using UniGLTF;
+using VRMShaders;
 
 namespace Kirurobo
 {
@@ -37,6 +38,7 @@ namespace Kirurobo
         public AudioSource audioSource;
 
         public RuntimeAnimatorController animatorController;
+        private RuntimeGltfInstance gltfInstance;
 
         public VrmCharacterBehaviour.MotionMode motionMode
         {
@@ -364,7 +366,7 @@ namespace Kirurobo
         /// Unload the old model and load the new model from VRM file.
         /// </summary>
         /// <param name="path"></param>
-        private void LoadModel(string path)
+        private async void LoadModel(string path)
         {
             if (!File.Exists(path))
             {
@@ -376,20 +378,12 @@ namespace Kirurobo
 
             try
             {
-                // Load from a VRM file.
-                var gltfData = new GlbFileParser(path).Parse();
-                var vrmData = new VRMData(gltfData);
+                gltfInstance = await VrmUtility.LoadAsync(path, new RuntimeOnlyAwaitCaller(), null, new VrmUtility.MetaCallback(val => this.meta = val));
+                gltfInstance.EnableUpdateWhenOffscreen();
 
-                using (var context = new VRMImporterContext(vrmData))
-                {
-                    var instance = context.Load();
-                    instance.EnableUpdateWhenOffscreen();
+                newModelObject = gltfInstance.Root;
 
-                    newModelObject = instance.Root;
-                    meta = context.ReadMeta(true);
-
-                    instance.ShowMeshes();
-                }
+                gltfInstance.ShowMeshes();
             }
             catch (Exception ex)
             {
