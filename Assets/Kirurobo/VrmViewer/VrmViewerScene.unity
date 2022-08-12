@@ -9964,11 +9964,10 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "<size=20><b>UniVRM</b></size>\n<i>https://github.com/vrm-c/UniVRM</i>\n\nMIT
+  m_Text: "<size=20><b>UniVRM v0.86.0</b></size>\n<i>https://github.com/vrm-c/UniVRM</i>\n\nMIT
     License\n\nCopyright (c) 2020 VRM Consortium\nCopyright (c) 2018 Masataka SUMI
     for MToon\n\n\n<size=20><b>VRMLoaderUI</b></size>\n<i>https://github.com/m2wasabi/VRMLoaderUI</i>\n\nMIT
-    License\n\nCopyright (c) 2018 m2wasabi\n\n\n<size=20><b>UnityStandaloneFileBrowser</b></size>\n<i>https://github.com/gkngkc/UnityStandaloneFileBrowser/</i>\n\nMIT
-    License\r\n\r\nCopyright (c) 2017 G\xF6khan G\xF6k\xE7e\r\n\r\n\n<size=20><b>HumanoidCollider</b></size>\n<i>https://github.com/yuzu-unity/HumanoidCollider/</i>\n\nFree\n\n\n<size=20><b>UNITE
+    License\n\nCopyright (c) 2018 m2wasabi\n\n\n<size=20><b>HumanoidCollider</b></size>\n<i>https://github.com/yuzu-unity/HumanoidCollider/</i>\n\nFree\n\n\n<size=20><b>UNITE
     IN THE SKY and motions</b></size>\n<i>https://unity-chan.com/</i>\n\n(c) Unity
     Technologies Japan/UCL\n\n\n<size=20><b>UniWindowController (UniWinC)</b></size>\n<i>https://github.com/kirurobo/UniWindowController/</i>\n\nMIT
     License\r\n\r\nCopyright (c) 2020 Kirurobo\r\n\r"
