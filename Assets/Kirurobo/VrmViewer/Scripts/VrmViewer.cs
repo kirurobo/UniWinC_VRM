@@ -7,7 +7,6 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using UniHumanoid;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -112,20 +111,19 @@ namespace Kirurobo
                 {
                     uiController.openButton.onClick.AddListener(() =>
                     {
-                        var filters = new []
-                        {
-                            new FilePanel.Filter("VRM files (.vrm)", "vrm"),
-                            new FilePanel.Filter("All files", "*"),
-                        };
                         FilePanel.OpenFilePanel(
-                                new FilePanel.Settings()
+                            new FilePanel.Settings()
+                            {
+                                title = "Open VRM file",
+                                filters = new FilePanel.Filter[]
                                 {
-                                    filters = filters,
-                                    flags = FilePanel.Flag.FileMustExist,
-                                    title = "Open a VRM",
+                                    new FilePanel.Filter("VRM files (*.vrm)", "vrm"),
+                                    //new FilePanel.Filter("All files (*.*)", "*"),
                                 },
-                                (path => LoadFile(path.First()))
-                            );
+                            },
+                            (path) => {
+                                if (path.Length > 0) LoadFile(path[0]);
+                            });
                     });
                 }
             }
