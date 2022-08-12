@@ -34,6 +34,8 @@ namespace Kirurobo
             buildPlayerOptions.locationPathName = outputPath;
             buildPlayerOptions.target = target;
             buildPlayerOptions.options = BuildOptions.None;
+            
+            Debug.Log($"Building {outputPath}");
 
             var report = BuildPipeline.BuildPlayer(buildPlayerOptions);
 
