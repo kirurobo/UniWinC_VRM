@@ -48,10 +48,10 @@ jobs:
 				# 切り出したブランチに移動
 				git checkout $UPM_BRANCH
 				
-				# メインブランチにあった README などをインポート
-				for file in $DOC_FILES; do
-					git checkout $MAIN_BRANCH $file &> /dev/null || echo $file is not found
-				done
+				## メインブランチにあった README などをインポート
+				#for file in $DOC_FILES; do
+				#	git checkout $MAIN_BRANCH $file &> /dev/null || echo $file is not found
+				#done
 				
 				# サンプルディレクトリを ~ 付きに改名
 				git mv "$SAMPLES_DIR" "$SAMPLES_DIR~" &> /dev/null || echo $SAMPLES_DIR is not found
