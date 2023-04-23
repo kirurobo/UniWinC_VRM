@@ -19,11 +19,12 @@ jobs:
   update:
     runs-on: ubuntu-latest
     steps:
+      # 最新のリリースバージョンを取得
       - name: Checkout
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - run: git checkout main
+      - run: git checkout "$MAIN_BRANCH"
       
       # イベントを起動したタグを steps.tag.outputs.name に格納
       - name: Tag name
@@ -40,21 +41,21 @@ jobs:
       - name: Create UPM branches
         run: |
           # 古いブランチを削除
-          git branch -D $UPM_BRANCH &> /dev/null || echo $UPM_BRANCH branch is not found
+          git branch -D "$UPM_BRANCH" &> /dev/null || echo "$UPM_BRANCH" branch is not found
           
           # アセットの中身を UPM ブランチに切り出す
-          git subtree split -P "$PKG_ROOT_DIR" -b $UPM_BRANCH
+          git subtree split -P "$PKG_ROOT_DIR" -b "$UPM_BRANCH"
           
           # 切り出したブランチに移動
-          git checkout $UPM_BRANCH
+          git checkout "$UPM_BRANCH"
           
           ## メインブランチにあった README などをインポート
-          #for file in $DOC_FILES; do
-          #	git checkout $MAIN_BRANCH $file &> /dev/null || echo $file is not found
+          #for file in "$DOC_FILES"; do
+          #	git checkout "$MAIN_BRANCH" $file &> /dev/null || echo "$file" is not found
           #done
           
           # サンプルディレクトリを ~ 付きに改名
-          git mv "$SAMPLES_DIR" "$SAMPLES_DIR~" &> /dev/null || echo $SAMPLES_DIR is not found
+          git mv "$SAMPLES_DIR" "$SAMPLES_DIR~" &> /dev/null || echo "$SAMPLES_DIR" is not found
           
           # サンプルディレクトリの .meta は削除
           rm "$SAMPLES_DIR.meta"
