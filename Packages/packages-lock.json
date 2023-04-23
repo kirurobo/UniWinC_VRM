@@ -1,12 +1,5 @@
 {
   "dependencies": {
-    "com.kirurobo.uniwinc": {
-      "version": "https://github.com/kirurobo/UniWindowController.git?path=/UniWinC/Assets/Kirurobo/UniWindowController",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {},
-      "hash": "7d68a78e22187be35389c5280c61ee0f071e387c"
-    },
     "com.unity.burst": {
       "version": "1.6.6",
       "depth": 2,
