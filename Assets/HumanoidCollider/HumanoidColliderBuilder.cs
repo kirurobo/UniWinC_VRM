@@ -259,7 +259,7 @@ public class HumanoidColliderBuilder : MonoBehaviour
         return tmp;
     }
 
-    private void CreateCollider(HumanBodyBones type, Transform tras, Vector3 forwardVec, Vector3 offset, float radius, float height, bool isbody, bool isTrigger = true, string layer = "Deffault", string tag = "Untagged", PhysicMaterial pm = null)
+    private void CreateCollider(HumanBodyBones type, Transform tras, Vector3 forwardVec, Vector3 offset, float radius, float height, bool isbody, bool isTrigger = true, string layer = "Deffault", string tag = "Untagged", PhysicsMaterial pm = null)
     {
         GameObject root = Instantiate((GameObject)Resources.Load("HumanoidCollider/root"), tras.position, Quaternion.LookRotation(forwardVec));
         root.name = type.ToString() + " Collider";
@@ -284,7 +284,7 @@ public class HumanoidColliderBuilder : MonoBehaviour
     [System.Serializable]
     public struct ColliderPrm
     {
-        public PhysicMaterial material;
+        public PhysicsMaterial material;
         public bool isTrigger;
         public TagLayer head;
         public TagLayer body;
