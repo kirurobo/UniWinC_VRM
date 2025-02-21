@@ -13,7 +13,7 @@ namespace Kirurobo {
             // AudioSourceを取得
             if (!refAudioSource)
             {
-                refAudioSource = FindObjectOfType<AudioSource>();
+                refAudioSource = FindAnyObjectByType<AudioSource>();
                 refAudioSource.Pause();
             }
         }

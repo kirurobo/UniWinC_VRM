@@ -12,7 +12,6 @@ using UnityEngine;
 using UnityEngine.Networking;
 using VRM;
 using UniGLTF;
-using VRMShaders;
 
 namespace Kirurobo
 {
@@ -55,7 +54,7 @@ namespace Kirurobo
             // 指定がなければ自動で探す
             if (!uiController)
             {
-                uiController = FindObjectOfType<VrmUiController>();
+                uiController = FindAnyObjectByType<VrmUiController>();
             }
 
             uiController.enableRandomMotion = true;
@@ -73,7 +72,7 @@ namespace Kirurobo
             // 指定がなければ自動で探す
             if (!cameraController)
             {
-                cameraController = FindObjectOfType<CameraController>();
+                cameraController = FindAnyObjectByType<CameraController>();
                 if (cameraController)
                 {
                     _originalZoomType = cameraController.zoomType;
@@ -83,7 +82,7 @@ namespace Kirurobo
             // 指定がなければ自動で探す
             if (!audioSource)
             {
-                audioSource = FindObjectOfType<AudioSource>();
+                audioSource = FindAnyObjectByType<AudioSource>();
             }
 
             // Load the initial model.
@@ -103,7 +102,7 @@ namespace Kirurobo
             //LoadMotion(Application.streamingAssetsPath + "/default_bvh.txt");
 
             // Initialize window manager
-            windowController = FindObjectOfType<UniWindowController>();
+            windowController = FindAnyObjectByType<UniWindowController>();
             if (windowController)
             {
                 // Add a file drop handler.
@@ -268,7 +267,6 @@ namespace Kirurobo
                 if (uiController)
                 {
                     _motionMode = uiController.motionMode;
-                    characterController.randomEmotion = uiController.enableRandomEmotion;
                 }
 
                 //var anim = model.GetComponent<Animator>();
@@ -285,9 +283,11 @@ namespace Kirurobo
             else
             {
                 characterController.SetMotionMode(VrmCharacterBehaviour.MotionMode.Default);
-                characterController.randomEmotion = false;
-
                 _motionMode = VrmCharacterBehaviour.MotionMode.Default;
+                
+                if (uiController) {
+                    uiController.enableRandomEmotion = false;
+                }
             }
         }
 
@@ -416,7 +416,6 @@ namespace Kirurobo
                     if (characterController)
                     {
                         uiController.enableRandomMotion = characterController.randomMotion;
-                        uiController.enableRandomEmotion = characterController.randomEmotion;
                     }
 
                 }
