@@ -196,7 +196,7 @@ namespace Kirurobo
             transparentType = UniWindowController.TransparentType.Alpha;
 
             // WindowControllerが指定されていなければ自動取得
-            windowController = FindObjectOfType<UniWindowController>();
+            windowController = FindAnyObjectByType<UniWindowController>();
             if (windowController)
             {
                 windowController.OnStateChanged += windowController_OnStateChanged;
@@ -205,7 +205,7 @@ namespace Kirurobo
             }
 
             // カメラ操作スクリプト
-            cameraController = FindObjectOfType<CameraController>();
+            cameraController = FindAnyObjectByType<CameraController>();
 
             vrmLoaderLocale = this.GetComponentInChildren<VRMLoader.VRMPreviewLocale>();
             vrmLoaderUI = this.GetComponentInChildren<VRMLoader.VRMPreviewUI>();
@@ -296,7 +296,7 @@ namespace Kirurobo
                 // AudioSourceの最大音量
                 const float maxSourceVolume = 0.2f;
 
-                audioSource = FindObjectOfType<AudioSource>();
+                audioSource = FindAnyObjectByType<AudioSource>();
 
                 // 今の設定で音量を調整しておく
                 audioSource.volume = maxSourceVolume * volumeSlider.value;

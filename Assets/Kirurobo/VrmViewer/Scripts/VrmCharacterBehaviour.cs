@@ -127,14 +127,14 @@ namespace Kirurobo
             // UIコントローラーを取得
             if (!uiController)
             {
-                uiController = FindObjectOfType<VrmUiController>();
+                uiController = FindAnyObjectByType<VrmUiController>();
                 uiController.OnMotionChanged += SetMotionMode;
             }
 
             // AudioSourceを取得
             if (!refAudioSource)
             {
-                refAudioSource = FindObjectOfType<AudioSource>();
+                refAudioSource = FindAnyObjectByType<AudioSource>();
             }
 
             SetAnimator(GetComponent<Animator>());
