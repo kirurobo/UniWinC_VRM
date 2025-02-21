@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 #if ENABLE_LEGACY_INPUT_MANAGER
 #elif ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;

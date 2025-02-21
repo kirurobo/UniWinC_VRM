@@ -3,12 +3,10 @@
  *
  * Author: Kirurobo
  *
- * Original author: m2wasabi, https://github.com/m2wasabi/VRMLoaderUI 
- * Original license: MIT License https://github.com/m2wasabi/VRMLoaderUI/blob/master/LICENSE 
- * 
+ * Original author: m2wasabi, https://github.com/m2wasabi/VRMLoaderUI
+ * Original license: MIT License https://github.com/m2wasabi/VRMLoaderUI/blob/master/LICENSE
+ *
  */
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;

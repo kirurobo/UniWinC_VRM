@@ -7,10 +7,9 @@
  * License: MIT
  */
 
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using VRM;
+using UniVRM10;
 
 namespace Kirurobo
 {
@@ -43,14 +42,13 @@ namespace Kirurobo
         /// <summary>
         /// 表情のプリセット
         /// </summary>
-        public static BlendShapePreset[] EmotionPresets =
+        public static ExpressionPreset[] EmotionPresets =
         {
-            BlendShapePreset.Neutral,
-            BlendShapePreset.Joy,
-            BlendShapePreset.Sorrow,
-            BlendShapePreset.Angry,
-            BlendShapePreset.Fun,
-            BlendShapePreset.Unknown,
+            ExpressionPreset.relaxed,
+            ExpressionPreset.happy,
+            ExpressionPreset.sad,
+            ExpressionPreset.angry,
+            ExpressionPreset.surprised,
         };
 
         internal int emotionIndex = 0; // 表情の状態
@@ -63,8 +61,8 @@ namespace Kirurobo
 
         private float emotionPromoteTime = 0.5f; // 表情が変化しきるまでの時間 [s]
 
-        private VRMLookAtHead lookAtHead;
-        private VRMBlendShapeProxy blendShapeProxy;
+        private Vrm10RuntimeLookAt runtimeLookAt;
+        private Vrm10RuntimeExpression runtimeExpression;
 
         private GameObject targetObject; // 視線目標オブジェクト
         private Transform headTransform; // Head transform
@@ -101,15 +99,25 @@ namespace Kirurobo
                 hasNewTargetObject = true;
             }
 
-            lookAtHead = GetComponent<VRMLookAtHead>();
-            blendShapeProxy = GetComponent<VRMBlendShapeProxy>();
-
-            if (lookAtHead)
+            var vrm10 = GetComponent<Vrm10Instance>();
+            if (vrm10 != null)
             {
-                lookAtHead.Target = targetObject.transform;
-                lookAtHead.UpdateType = UpdateType.LateUpdate;
+                runtimeLookAt = vrm10.Runtime.LookAt;
+                runtimeExpression = vrm10.Runtime.Expression;
+            }
 
-                headTransform = lookAtHead.Head;
+            if (runtimeLookAt != null)
+            {
+                // 視線を送るオブジェクトを設定
+                vrm10.LookAtTargetType = VRM10ObjectLookAt.LookAtTargetTypes.SpecifiedTransform;
+                vrm10.LookAtTarget = targetObject.transform;
+                
+                // 頭部分を代表するTransformを取得
+                headTransform = runtimeLookAt.LookAtOriginTransform;
+            }
+
+            if (runtimeExpression != null)
+            {
             }
 
             if (!headTransform)
@@ -282,7 +290,8 @@ namespace Kirurobo
         /// </summary>
         private void UpdateHead()
         {
-            Quaternion rot = Quaternion.Euler(-lookAtHead.Pitch, lookAtHead.Yaw, 0f);
+            if (runtimeLookAt != null) return;
+            Quaternion rot = Quaternion.Euler(-runtimeLookAt.Pitch, runtimeLookAt.Yaw, 0f);
             headTransform.rotation = Quaternion.Slerp(headTransform.rotation, rot, 0.2f);
 
         }
@@ -292,21 +301,21 @@ namespace Kirurobo
         /// </summary>
         private void Blink()
         {
-            if (!blendShapeProxy) return;
+            if (runtimeExpression != null) return;
 
             float now = Time.timeSinceLevelLoad;
             float span;
 
             float blinkValue = 0f;
 
-            BlendShapeKey blinkShapeKey = BlendShapeKey.CreateFromPreset(BlendShapePreset.Blink);
+            ExpressionKey blinkPresetKey = ExpressionKey.CreateFromPreset(ExpressionPreset.blink);
             
             // 表情が笑顔の時は目が閉じられるため、まばたきは無効とする
-            if (EmotionPresets[emotionIndex] == BlendShapePreset.Joy)
+            if (EmotionPresets[emotionIndex] == ExpressionPreset.happy)
             {
                 blinkState = BlinkState.None;
                 blinkValue = 0f;
-                blendShapeProxy.ImmediatelySetValue(blinkShapeKey, blinkValue);
+                runtimeExpression.SetWeight(blinkPresetKey, blinkValue);
             }
             
             // まばたきの状態遷移
@@ -324,7 +333,7 @@ namespace Kirurobo
                     {
                         blinkValue = span / BlinkTime;
                     }
-                    blendShapeProxy.ImmediatelySetValue(blinkShapeKey, blinkValue);
+                    runtimeExpression.SetWeight(blinkPresetKey, blinkValue);
                     break;
                 case BlinkState.Opening:
                     span = now - lastBlinkTime - BlinkTime;
@@ -338,7 +347,7 @@ namespace Kirurobo
                     {
                         blinkValue = 1f - (span / BlinkTime);
                     }
-                    blendShapeProxy.ImmediatelySetValue(blinkShapeKey, blinkValue);
+                    runtimeExpression.SetWeight(blinkPresetKey, blinkValue);
                     break;
                 default:
                     if (now >= nextBlinkTime)
@@ -401,9 +410,9 @@ namespace Kirurobo
         /// </summary>
         private void UpdateEmotion()
         {
-            if (!blendShapeProxy) return;
+            if (runtimeExpression != null) return;
 
-            var blendShapes = new List<KeyValuePair<BlendShapeKey, float>>();
+            var weights = new List<KeyValuePair<ExpressionKey, float>>();
 
             int index = 0;
             foreach (var shape in EmotionPresets)
@@ -411,11 +420,11 @@ namespace Kirurobo
                 float val = 0f;
                 // 現在選ばれている表情のみ値を入れ、他はゼロとする
                 if (index == emotionIndex) val = emotionRate;
-                blendShapes.Add(new KeyValuePair<BlendShapeKey, float>(BlendShapeKey.CreateFromPreset(shape), val));
+                weights.Add(new KeyValuePair<ExpressionKey, float>(ExpressionKey.CreateFromPreset(shape), val));
                 index++;
             }
 
-            blendShapeProxy.SetValues(blendShapes);
+            runtimeExpression.SetWeights(weights);
 
             UpdateUI();
         }

@@ -1,10 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using Kirurobo;
 using UnityEngine.Serialization;
-using VRM;
+using UniVRM10;
+using System.Linq;
 
 namespace Kirurobo
 {
@@ -61,8 +59,6 @@ namespace Kirurobo
         private Vector2 originalAnchoredPosition;
         private Canvas canvas;
 
-        private VRMLoader.VRMPreviewLocale vrmLoaderLocale;
-        private VRMLoader.VRMPreviewUI vrmLoaderUI;
         private VrmUiLocale uiLocale;
 
         private TabPanelManager tabPanelManager;
@@ -76,6 +72,16 @@ namespace Kirurobo
         private AudioSource audioSource;
 
         public Material uiMaterial;
+
+        // プレビュー部分のオブジェクト
+        public Text previewVrmVersion;
+        public RawImage previewImage;
+        public Text previewText;
+        public Text previewVersion;
+        public Text previewAuthor;
+        public Text previewContact;
+        public Text previewReference;
+
 
 
         /// <summary>
@@ -210,8 +216,6 @@ namespace Kirurobo
             // カメラ操作スクリプト
             cameraController = FindAnyObjectByType<CameraController>();
 
-            vrmLoaderLocale = this.GetComponentInChildren<VRMLoader.VRMPreviewLocale>();
-            vrmLoaderUI = this.GetComponentInChildren<VRMLoader.VRMPreviewUI>();
             uiLocale = this.GetComponentInChildren<VrmUiLocale>();
             tabPanelManager = this.GetComponentInChildren<TabPanelManager>();
 
@@ -321,7 +325,7 @@ namespace Kirurobo
             }
 
             // Show menu on startup.
-            Show(null);
+            Show();
         }
 
         public void Save()
@@ -468,7 +472,6 @@ namespace Kirurobo
                     break;
             }
 
-            if (vrmLoaderLocale) vrmLoaderLocale.SetLocale(lang);
             if (uiLocale) uiLocale.SetLocale(lang);
         }
 
@@ -693,19 +696,31 @@ namespace Kirurobo
             if (cameraController) cameraController.enableWheel = false;
         }
 
-        /// <summary>
-        /// Show the meta information
-        /// </summary>
-        /// <param name="meta"></param>
-        public void Show(VRM.VRMMetaObject meta)
+        public void MetaLoaded(Texture2D thumbnail, UniGLTF.Extensions.VRMC_vrm.Meta meta, UniVRM10.Migration.Vrm0Meta vrm0Meta)
         {
-            if (meta)
+            if (thumbnail)
             {
-                if (vrmLoaderUI) vrmLoaderUI.setMeta(meta);
-                if (tabPanelManager) tabPanelManager.Select(0); // 0番がモデル情報のパネルという前提
+                previewImage.texture = thumbnail;
             }
 
-            Show();
+            if (meta != null)
+            {
+                previewVrmVersion.text = "VRM 1";
+                previewText.text = meta.Name;
+                previewVersion.text = meta.Version;
+                previewAuthor.text = meta.Authors?.ToString();
+                previewContact.text = meta.ContactInformation;
+                previewReference.text = meta.References?.ToString();
+            } else if (vrm0Meta != null) {
+                previewVrmVersion.text = "VRM 0";
+                previewText.text = vrm0Meta.title;
+                previewVersion.text = vrm0Meta.version;
+                previewAuthor.text = vrm0Meta.author;
+                previewContact.text = vrm0Meta.contactInformation;
+                previewReference.text = vrm0Meta.reference;
+            }
+            
+            tabPanelManager.Select(0); // 0番がモデル情報のパネルという前提で、それを開く
         }
 
         /// <summary>
