@@ -70,6 +70,9 @@ namespace Kirurobo
         public delegate void motionChangedDelegate(VrmCharacterBehaviour.MotionMode mode);
         public motionChangedDelegate OnMotionChanged;
 
+        public delegate void blendShapeChangedDelegate(int index = -1, float value = -1f);
+        public blendShapeChangedDelegate OnBlendShapeChanged;
+
         private AudioSource audioSource;
 
         public Material uiMaterial;
@@ -261,10 +264,21 @@ namespace Kirurobo
                 titleText.text = Application.productName + " Ver." + Application.version;
             }
 
-            //if (emotionToggleRandom) { emotionToggleRandom.onValueChanged.AddListener(val => enableRandomEmotion = val); }
+            if (emotionToggleRandom) { emotionToggleRandom.onValueChanged.AddListener(val => enableRandomEmotion = val); }
             if (motionTogglePreset) { motionTogglePreset.onValueChanged.AddListener(val => OnMotionToggleClicked(VrmCharacterBehaviour.MotionMode.Default)); }
             if (motionToggleDance) { motionToggleDance.onValueChanged.AddListener(val => OnMotionToggleClicked(VrmCharacterBehaviour.MotionMode.Dance)); }
             //if (motionToggleRandom) { motionToggleRandom.onValueChanged.AddListener(val => motionMode = VrmCharacterBehaviour.MotionMode.Random); }
+
+            // 表情の選択肢が変更されたときの処理
+            if (blendShapeDropdown)
+            {
+                blendShapeDropdown.onValueChanged.AddListener(OnBlendShapeIndexChanged);
+            }
+            // 表情スライダーの値が変更されたときの処理
+            if (blendShapeSlider)
+            {
+                blendShapeSlider.onValueChanged.AddListener(OnBlendShapeSliderChanged);
+            }
 
             // 直接バインドしない項目の初期値とイベントリスナーを設定
             if (zoomTypeDropdown)
@@ -496,6 +510,34 @@ namespace Kirurobo
             if (blendShapeSlider)
             {
                 blendShapeSlider.value = value;
+            }
+        }
+
+        /// <summary>
+        /// 表情の選択肢が変更されたときの処理
+        /// </summary>
+        private void OnBlendShapeIndexChanged(int index) {
+            // 表情がランダムになっている場合は何もしない
+            if (emotionToggleRandom && emotionToggleRandom.isOn) return;
+
+            if (OnBlendShapeChanged != null)
+            {
+                OnBlendShapeChanged.Invoke(index, -1f);
+            }
+        }
+
+        /// <summary>
+        /// 表情スライダーの値が変更されたときの処理
+        /// </summary>
+        /// <param name="value">-1fだと変更しない</param>
+        private void OnBlendShapeSliderChanged(float value)
+        {
+            // 表情がランダムになっている場合は何もしない
+            if (emotionToggleRandom && emotionToggleRandom.isOn) return;
+
+            if (OnBlendShapeChanged != null)
+            {
+                OnBlendShapeChanged.Invoke(-1, value);
             }
         }
 

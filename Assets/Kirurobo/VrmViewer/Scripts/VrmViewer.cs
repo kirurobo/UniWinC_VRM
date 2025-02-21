@@ -267,7 +267,6 @@ namespace Kirurobo
                 if (uiController)
                 {
                     _motionMode = uiController.motionMode;
-                    characterController.randomEmotion = uiController.enableRandomEmotion;
                 }
 
                 //var anim = model.GetComponent<Animator>();
@@ -284,9 +283,11 @@ namespace Kirurobo
             else
             {
                 characterController.SetMotionMode(VrmCharacterBehaviour.MotionMode.Default);
-                characterController.randomEmotion = false;
-
                 _motionMode = VrmCharacterBehaviour.MotionMode.Default;
+                
+                if (uiController) {
+                    uiController.enableRandomEmotion = false;
+                }
             }
         }
 
@@ -415,7 +416,6 @@ namespace Kirurobo
                     if (characterController)
                     {
                         uiController.enableRandomMotion = characterController.randomMotion;
-                        uiController.enableRandomEmotion = characterController.randomEmotion;
                     }
 
                 }

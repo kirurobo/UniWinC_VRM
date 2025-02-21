@@ -87,7 +87,6 @@ namespace Kirurobo
         private float lastLeftHandWeight = 0f;
 
         public bool randomMotion = false; // モーションをランダムにするか
-        public bool randomEmotion = true;
 
         private Camera currentCamera;
         private VrmUiController uiController;
@@ -129,6 +128,7 @@ namespace Kirurobo
             {
                 uiController = FindAnyObjectByType<VrmUiController>();
                 uiController.OnMotionChanged += SetMotionMode;
+                uiController.OnBlendShapeChanged += SetBlendShape;
             }
 
             // AudioSourceを取得
@@ -219,6 +219,28 @@ namespace Kirurobo
             else
             {
                 motionMode = mode;
+            }
+        }
+
+        /// <summary>
+        /// UI側で表情を変更されたときに呼ばれる処理
+        /// </summary>
+        /// <param name="index">ブレンドシェイプ番号。-1だと変更なしで量のみ更新</param>
+        public void SetBlendShape(int index, float value = -1f)
+        {
+            bool updated = false;
+            if (index >= 0 && index < EmotionPresets.Length) {
+                emotionIndex = index;
+                updated = true;
+            }
+            if (value >= 0f && value <= 1f)
+            {
+                emotionRate = value;
+                updated = true;
+            }
+            if (updated)
+            {
+                UpdateEmotion();
             }
         }
 
@@ -345,6 +367,12 @@ namespace Kirurobo
         {
             float now = Time.timeSinceLevelLoad;
 
+            if (uiController && !uiController.enableRandomEmotion)
+            {
+                // UIでランダム表情が無効にされていたら何もしない
+                return;
+            }
+
             if (now >= nextEmotionTime)
             {
                 // 待ち時間を越えた場合の処理
@@ -374,8 +402,6 @@ namespace Kirurobo
         private void UpdateEmotion()
         {
             if (!blendShapeProxy) return;
-
-            if (!randomEmotion) return; // 現状、ランダムが解除されていたら何もしない（戻さない）
 
             var blendShapes = new List<KeyValuePair<BlendShapeKey, float>>();
 
