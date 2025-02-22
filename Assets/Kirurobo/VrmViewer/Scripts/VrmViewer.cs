@@ -185,7 +185,7 @@ namespace Kirurobo
         }
 
         /// <summary>
-        /// A handler for file dropping.
+        /// Load dropped file(s)
         /// </summary>
         /// <param name="files"></param>
         private void Window_OnFilesDropped(string[] files)

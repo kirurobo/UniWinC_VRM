@@ -219,8 +219,7 @@ namespace Kirurobo
             uiLocale = this.GetComponentInChildren<VrmUiLocale>();
             tabPanelManager = this.GetComponentInChildren<TabPanelManager>();
 
-            // 中央基準にする
-            panel.anchorMin = panel.anchorMax = panel.pivot = new Vector2(0.5f, 0.5f);
+            // パネルの初期位置を記憶
             originalAnchoredPosition = panel.anchoredPosition;
 
             // 表情の選択肢を準備
@@ -662,14 +661,16 @@ namespace Kirurobo
         {
             if (panel)
             {
+                // パネルの左上が指定座標にくるものとする
                 Vector2 pos = mousePosition;
                 float w = panel.rect.width;
                 float h = panel.rect.height;
+                Vector2 pivot = panel.pivot;
 
-                pos.x += Mathf.Max(w * 0.5f - pos.x, 0f); // 左にはみ出していれば右に寄せる
-                pos.y += Mathf.Max(h * 0.5f - pos.y, 0f); // 下にはみ出していれば上に寄せる
-                pos.x -= Mathf.Max(pos.x - Screen.width + w * 0.5f, 0f); // 右にはみ出していれば左に寄せる
-                pos.y -= Mathf.Max(pos.y - Screen.height + h * 0.5f, 0f); // 上にはみ出していれば下に寄せる
+                pos.x += Mathf.Max(w * pivot.x - pos.x, 0f); // 左にはみ出していれば右に寄せる
+                pos.y += Mathf.Max(h * pivot.y - pos.y, 0f); // 下にはみ出していれば上に寄せる
+                pos.x -= Mathf.Max(pos.x - Screen.width + w * (1f - pivot.x), 0f); // 右にはみ出していれば左に寄せる
+                pos.y -= Mathf.Max(pos.y - Screen.height + h * (1f - pivot.y), 0f); // 上にはみ出していれば下に寄せる
 
                 panel.anchorMin = Vector2.zero;
                 panel.anchorMax = Vector2.zero;
