@@ -532,7 +532,7 @@ namespace Kirurobo
             if (!isRightHandMoved)
             {
                 // 右手を戻す
-                lastRightHandWeight = Mathf.Lerp(lastRightHandWeight, 0.0f, 0.05f);
+                lastRightHandWeight = Mathf.Lerp(lastRightHandWeight, 0.0f, 0.2f);
                 animator.SetIKPosition(AvatarIKGoal.RightHand, cursorPosition);
                 animator.SetIKPositionWeight(AvatarIKGoal.RightHand, lastRightHandWeight);
                 //animator.SetIKRotationWeight(AvatarIKGoal.RightHand, lastRightHandWait);
@@ -541,7 +541,7 @@ namespace Kirurobo
             if (!isLeftHandMoved)
             {
                 // 左手を戻す
-                lastLeftHandWeight = Mathf.Lerp(lastLeftHandWeight, 0.0f, 0.05f);
+                lastLeftHandWeight = Mathf.Lerp(lastLeftHandWeight, 0.0f, 0.2f);
                 animator.SetIKPosition(AvatarIKGoal.LeftHand, cursorPosition);
                 animator.SetIKPositionWeight(AvatarIKGoal.LeftHand, lastLeftHandWeight);
                 //animator.SetIKRotationWeight(AvatarIKGoal.LeftHand, lastLeftHandWait);
