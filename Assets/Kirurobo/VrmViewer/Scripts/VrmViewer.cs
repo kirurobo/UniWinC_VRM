@@ -308,12 +308,18 @@ namespace Kirurobo
 
             try
             {
+                if (uiController) uiController.ShowLoading("Loading model...");
+
                 vrmInstance = await Vrm10.LoadPathAsync(
                     path: path,
                     canLoadVrm0X: true,
                     showMeshes: false,
+                    materialGenerator: new UrpVrm10MaterialDescriptorGenerator(),
                     vrmMetaInformationCallback: uiController.MetaLoaded
                     );
+                
+                // 読み込めたらロード中表示を消す
+                if (uiController) uiController.HideLoading();
 
                 newModelObject = vrmInstance.gameObject;
 
@@ -324,7 +330,10 @@ namespace Kirurobo
             }
             catch (Exception ex)
             {
-                if (uiController) uiController.ShowWarning("Model load failed.");
+                if (uiController) {
+                    uiController.ShowLoading("Model load failed");
+                    uiController.ShowWarning("Model load failed.");
+                }
                 Debug.LogError("Failed loading " + path);
                 Debug.LogError(ex);
                 return;

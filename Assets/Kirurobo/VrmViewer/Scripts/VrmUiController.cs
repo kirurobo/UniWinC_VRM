@@ -73,6 +73,10 @@ namespace Kirurobo
 
         public Material uiMaterial;
 
+        // ローディング中表示のオブジェクト
+        public RectTransform loadingPanel;
+        public Text loadingText;
+
         // プレビュー部分のオブジェクト
         public Text previewVrmVersion;
         public RawImage previewImage;
@@ -681,20 +685,34 @@ namespace Kirurobo
             if (cameraController) cameraController.enableWheel = false;
         }
 
+        public void ShowLoading(string message)
+        {
+            if (loadingPanel)
+            {
+                if (loadingText) loadingText.text = message;
+                // パネルの位置をリセット
+                loadingPanel.anchoredPosition = Vector2.zero;
+                loadingPanel.gameObject.SetActive(true);
+            }
+        }
+
+        public void HideLoading()
+        {
+            if (loadingPanel)
+            {
+                if (loadingText) loadingText.text = "Loading...";
+                loadingPanel.gameObject.SetActive(false);
+            }
+        }
+
         /// <summary>
-        /// メニューを表示する
+        /// 既定の位置にメニューを表示する
         /// </summary>
         public void Show()
         {
-            if (panel)
-            {
-                // 中央基準にして表示
-                panel.anchorMin = panel.anchorMax = new Vector2(0.5f, 0.5f);
-                panel.anchoredPosition = originalAnchoredPosition;
-                panel.gameObject.SetActive(true);
-            }
-
-            if (cameraController) cameraController.enableWheel = false;
+            // 既定では画面中央、やや上部
+            Vector2 pos = new Vector2(Screen.width * 0.5f, Screen.height * 0.75f);
+            Show(pos);
         }
 
         public void MetaLoaded(Texture2D thumbnail, UniGLTF.Extensions.VRMC_vrm.Meta meta, UniVRM10.Migration.Vrm0Meta vrm0Meta)

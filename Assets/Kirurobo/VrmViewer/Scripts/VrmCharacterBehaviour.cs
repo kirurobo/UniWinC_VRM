@@ -478,9 +478,6 @@ namespace Kirurobo
             // IK_HANDというアニメーションのときのみ、手を伸ばす
             if (animState.IsName("IK_HAND") || animState.IsName("IK_HAND_REVERSE"))
             {
-                // float sqrDistanceRight = (cursorPosition - rightHandTransform.position).sqrMagnitude;
-                // float sqrDistanceLeft = (cursorPosition - leftHandTransform.position).sqrMagnitude;
-                
                 // 手先ではなく、右肩、左肩どちらにカーソルが近いかで、左右どちらの腕を伸ばすか決定する
                 float sqrDistanceRight = (cursorPosition - rightShoulderTransform.position).sqrMagnitude;
                 float sqrDistanceLeft = (cursorPosition - leftShoulderTransform.position).sqrMagnitude;
@@ -491,20 +488,16 @@ namespace Kirurobo
                     // 右手とカーソルの距離の2乗
                     float sqrDistance = sqrDistanceRight;
 
-                    // モデルやアニメーションの状態によるが、位置調整
-                    //cursorPosition.y -= 0.05f;
-
                     // 右手からの距離が近ければ追従させる
                     if ((sqrDistance < cursorGrabingSqrMagnitude))
                     {
-                        //lastRightHandWeight = Mathf.Lerp(lastRightHandWeight, 0.7f, 0.1f);
-                        lastRightHandWeight = Mathf.Lerp(lastRightHandWeight, 0.9f, 0.02f);
-
-                        Quaternion handRotation = Quaternion.Euler(-90f, 180f, 0f);
+                        lastRightHandWeight = Mathf.Lerp(lastRightHandWeight, 0.9f, 0.01f);
 
                         animator.SetIKPosition(AvatarIKGoal.RightHand, cursorPosition);
                         animator.SetIKPositionWeight(AvatarIKGoal.RightHand, lastRightHandWeight);
 
+                        //// 回転
+                        //Quaternion handRotation = Quaternion.Euler(-90f, 180f, 0f);
                         //animator.SetIKRotation(AvatarIKGoal.RightHand, handRotation);
                         //animator.SetIKRotationWeight(AvatarIKGoal.RightHand, lastRightHandWait);
 
@@ -517,20 +510,16 @@ namespace Kirurobo
                     // 左とカーソルの距離の2乗
                     float sqrDistance = sqrDistanceLeft;
 
-                    // モデルやアニメーションの状態によるが、位置調整
-                    //cursorPosition.x += 0.05f;
-
                     // 左手からの距離が近ければ追従させる
                     if ((sqrDistance < cursorGrabingSqrMagnitude))
                     {
-                        //lastLeftHandWeight = Mathf.Lerp(lastLeftHandWeight, 0.7f, 0.1f);
-                        lastLeftHandWeight = Mathf.Lerp(lastLeftHandWeight, 0.9f, 0.02f);
-
-                        //Quaternion handRotation = Quaternion.Euler(-90f, 180f, 0f);
+                        lastLeftHandWeight = Mathf.Lerp(lastLeftHandWeight, 0.9f, 0.01f);
 
                         animator.SetIKPosition(AvatarIKGoal.LeftHand, cursorPosition);
                         animator.SetIKPositionWeight(AvatarIKGoal.LeftHand, lastLeftHandWeight);
 
+                        //// 回転
+                        //Quaternion handRotation = Quaternion.Euler(-90f, 180f, 0f);
                         //animator.SetIKRotation(AvatarIKGoal.LeftHand, handRotation);
                         //animator.SetIKRotationWeight(AvatarIKGoal.LeftHand, lastLeftHandWait);
 
@@ -543,7 +532,7 @@ namespace Kirurobo
             if (!isRightHandMoved)
             {
                 // 右手を戻す
-                lastRightHandWeight = Mathf.Lerp(lastRightHandWeight, 0.0f, 0.2f);
+                lastRightHandWeight = Mathf.Lerp(lastRightHandWeight, 0.0f, 0.05f);
                 animator.SetIKPosition(AvatarIKGoal.RightHand, cursorPosition);
                 animator.SetIKPositionWeight(AvatarIKGoal.RightHand, lastRightHandWeight);
                 //animator.SetIKRotationWeight(AvatarIKGoal.RightHand, lastRightHandWait);
@@ -552,7 +541,7 @@ namespace Kirurobo
             if (!isLeftHandMoved)
             {
                 // 左手を戻す
-                lastLeftHandWeight = Mathf.Lerp(lastLeftHandWeight, 0.0f, 0.2f);
+                lastLeftHandWeight = Mathf.Lerp(lastLeftHandWeight, 0.0f, 0.05f);
                 animator.SetIKPosition(AvatarIKGoal.LeftHand, cursorPosition);
                 animator.SetIKPositionWeight(AvatarIKGoal.LeftHand, lastLeftHandWeight);
                 //animator.SetIKRotationWeight(AvatarIKGoal.LeftHand, lastLeftHandWait);
