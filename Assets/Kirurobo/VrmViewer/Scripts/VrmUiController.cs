@@ -4,6 +4,8 @@ using UnityEngine.Serialization;
 using UniVRM10;
 using System.Linq;
 using TMPro;
+using System.Text;
+using System.Collections.Generic;
 
 namespace Kirurobo
 {
@@ -41,8 +43,8 @@ namespace Kirurobo
         public Toggle motionToggleDance;
         public Slider volumeSlider;
         public Toggle emotionToggleRandom;
-        public Dropdown blendShapeDropdown;
-        public Slider blendShapeSlider;
+        public Dropdown expressionDropdown;
+        public Slider expressionSlider;
 
         public Button tabButtonModel;
         public Button tabButtonControl;
@@ -67,8 +69,8 @@ namespace Kirurobo
         public delegate void motionChangedDelegate(VrmCharacterBehaviour.MotionMode mode);
         public motionChangedDelegate OnMotionChanged;
 
-        public delegate void blendShapeChangedDelegate(int index = -1, float value = -1f);
-        public blendShapeChangedDelegate OnBlendShapeChanged;
+        public delegate void expressionChangedDelegate(int index = -1, float value = -1f);
+        public expressionChangedDelegate OnExpressionChanged;
 
         private AudioSource audioSource;
 
@@ -82,6 +84,7 @@ namespace Kirurobo
         public Text previewAuthor;
         public Text previewContact;
         public Text previewReference;
+        public Text previewLicense;
 
         // 影を描画するオブジェクト
         public Transform shadowPlane;
@@ -119,8 +122,8 @@ namespace Kirurobo
             set
             {
                 if (emotionToggleRandom) emotionToggleRandom.isOn = value;
-                if (blendShapeDropdown) blendShapeDropdown.interactable = !value;
-                if (blendShapeSlider) blendShapeSlider.interactable = !value;
+                if (expressionDropdown) expressionDropdown.interactable = !value;
+                if (expressionSlider) expressionSlider.interactable = !value;
             }
         }
 
@@ -228,9 +231,6 @@ namespace Kirurobo
             // パネルの初期位置を記憶
             originalAnchoredPosition = panel.anchoredPosition;
 
-            // 表情の選択肢を準備
-            SetupBlendShapeDropdown();
-
             // Load settings.
             Load();
 
@@ -285,14 +285,14 @@ namespace Kirurobo
             //if (motionToggleRandom) { motionToggleRandom.onValueChanged.AddListener(val => motionMode = VrmCharacterBehaviour.MotionMode.Random); }
 
             // 表情の選択肢が変更されたときの処理
-            if (blendShapeDropdown)
+            if (expressionDropdown)
             {
-                blendShapeDropdown.onValueChanged.AddListener(OnBlendShapeIndexChanged);
+                expressionDropdown.onValueChanged.AddListener(OnExpressionIndexChanged);
             }
             // 表情スライダーの値が変更されたときの処理
-            if (blendShapeSlider)
+            if (expressionSlider)
             {
-                blendShapeSlider.onValueChanged.AddListener(OnBlendShapeSliderChanged);
+                expressionSlider.onValueChanged.AddListener(OnExpressionSliderChanged);
             }
 
             // 直接バインドしない項目の初期値とイベントリスナーを設定
@@ -504,29 +504,29 @@ namespace Kirurobo
         /// <summary>
         /// 表情の選択肢を初期化
         /// </summary>
-        private void SetupBlendShapeDropdown()
+        internal void SetupExpressionDropdown(ExpressionKey[] keys = null)
         {
-            if (!blendShapeDropdown) return;
+            if (!expressionDropdown) return;
 
-            blendShapeDropdown.options.Clear();
-            foreach (var preset in VrmCharacterBehaviour.EmotionPresets)
+            expressionDropdown.options.Clear();
+            foreach (var key in keys)
             {
-                blendShapeDropdown.options.Add(new Dropdown.OptionData(preset.ToString()));
+                expressionDropdown.options.Add(new Dropdown.OptionData(key.Name));
             }
 
-            blendShapeDropdown.RefreshShownValue();
+            expressionDropdown.RefreshShownValue();
         }
 
         /// <summary>
         /// Apply the dropdown index
         /// </summary>
         /// <param name="index"></param>
-        internal void SetBlendShape(int index)
+        internal void SetExpression(int index)
         {
-            if (blendShapeDropdown)
+            if (expressionDropdown)
             {
-                blendShapeDropdown.value = index;
-                blendShapeDropdown.RefreshShownValue();
+                expressionDropdown.value = index;
+                expressionDropdown.RefreshShownValue();
             }
         }
 
@@ -534,24 +534,24 @@ namespace Kirurobo
         /// Apply the slide value
         /// </summary>
         /// <param name="value"></param>
-        internal void SetBlendShapeValue(float value)
+        internal void SetExpressionValue(float value)
         {
-            if (blendShapeSlider)
+            if (expressionSlider)
             {
-                blendShapeSlider.value = value;
+                expressionSlider.value = value;
             }
         }
 
         /// <summary>
         /// 表情の選択肢が変更されたときの処理
         /// </summary>
-        private void OnBlendShapeIndexChanged(int index) {
+        private void OnExpressionIndexChanged(int index) {
             // 表情がランダムになっている場合は何もしない
             if (emotionToggleRandom && emotionToggleRandom.isOn) return;
 
-            if (OnBlendShapeChanged != null)
+            if (OnExpressionChanged != null)
             {
-                OnBlendShapeChanged.Invoke(index, -1f);
+                OnExpressionChanged.Invoke(index, -1f);
             }
         }
 
@@ -559,14 +559,14 @@ namespace Kirurobo
         /// 表情スライダーの値が変更されたときの処理
         /// </summary>
         /// <param name="value">-1fだと変更しない</param>
-        private void OnBlendShapeSliderChanged(float value)
+        private void OnExpressionSliderChanged(float value)
         {
             // 表情がランダムになっている場合は何もしない
             if (emotionToggleRandom && emotionToggleRandom.isOn) return;
 
-            if (OnBlendShapeChanged != null)
+            if (OnExpressionChanged != null)
             {
-                OnBlendShapeChanged.Invoke(-1, value);
+                OnExpressionChanged.Invoke(-1, value);
             }
         }
 
@@ -748,9 +748,26 @@ namespace Kirurobo
                 previewVrmVersion.text = "VRM 1";
                 previewText.text = meta.Name;
                 previewVersion.text = meta.Version;
-                previewAuthor.text = meta.Authors?.ToString();
+                previewAuthor.text = ListToString(meta.Authors);
                 previewContact.text = meta.ContactInformation;
-                previewReference.text = meta.References?.ToString();
+                previewReference.text = ListToString(meta.References);
+
+                VrmUiLocale.LocaleText locale = uiLocale.localeText;
+                if (previewLicense)
+                {
+                    StringBuilder sb = new StringBuilder();
+                    AppendLicense(ref sb, locale.licenses.Personation, meta.AvatarPermission.ToString());
+                    AppendLicense(ref sb, locale.licenses.ViolentUsage, meta.AllowExcessivelyViolentUsage);
+                    AppendLicense(ref sb, locale.licenses.SexualUsage, meta.AllowExcessivelySexualUsage);
+                    AppendLicense(ref sb, locale.licenses.CommercialUsage, meta.CommercialUsage.ToString());
+                    AppendLicense(ref sb, locale.licenses.PoliticalUsage, meta.AllowPoliticalOrReligiousUsage);
+                    AppendLicense(ref sb, locale.licenses.AntiUsage, meta.AllowAntisocialOrHateUsage);
+                    AppendLicense(ref sb, locale.licenses.Credit, meta.CreditNotation.ToString());
+                    AppendLicense(ref sb, locale.licenses.Redistribution, meta.AllowRedistribution);
+                    AppendLicense(ref sb, locale.licenses.Modification, meta.Modification.ToString());
+                    AppendLicense(ref sb, locale.licenses.OtherLicense, meta.OtherLicenseUrl);
+                    previewLicense.text = sb.ToString();
+                }
             } else if (vrm0Meta != null) {
                 previewVrmVersion.text = "VRM 0";
                 previewText.text = vrm0Meta.title;
@@ -758,11 +775,57 @@ namespace Kirurobo
                 previewAuthor.text = vrm0Meta.author;
                 previewContact.text = vrm0Meta.contactInformation;
                 previewReference.text = vrm0Meta.reference;
+
+                VrmUiLocale.LocaleText locale = uiLocale.localeText;
+                if (previewLicense)
+                {
+                    StringBuilder sb = new StringBuilder();
+                    AppendLicense(ref sb, locale.licenses.AllowedUser, vrm0Meta.allowedUser.ToString());
+                    AppendLicense(ref sb, locale.licenses.ViolentUsage, vrm0Meta.violentUsage);
+                    AppendLicense(ref sb, locale.licenses.SexualUsage, vrm0Meta.sexualUsage);
+                    AppendLicense(ref sb, locale.licenses.CommercialUsage, vrm0Meta.commercialUsage);
+                    AppendLicense(ref sb, locale.licenses.OtherPermissionUrl, vrm0Meta.otherPermissionUrl);
+                    AppendLicense(ref sb, locale.licenses.OtherLicense, vrm0Meta.otherLicenseUrl);
+                    previewLicense.text = sb.ToString();
+                }
             }
 
             Invoke("ShowModelPanel", 0.1f);
             //// エディタでは動いたが、ビルド後はここで tabPanelManager を利用不可
             //tabPanelManager.Select(0); // 0番がモデル情報のパネルという前提で、それを開く
+        }
+
+        private string ListToString<T>(List<T> list) {
+            if (list == null) return "";
+            return string.Join(", ", list.ToArray());
+        }
+
+        /// <summary>
+        /// StringBuilderにてライセンスの記述を追加
+        /// </summary>
+        /// <param name="sb"></param>
+        /// <param name="title"></param>
+        /// <param name="value"></param>
+        private void AppendLicense(ref StringBuilder sb, string title, bool? value)
+        {
+            sb.Append(title); sb.Append(": ");
+            sb.Append(value ?? false ? "OK" : "NG");
+            sb.Append("\n");
+        }
+
+        /// <summary>
+        /// StringBuilderにてライセンスの記述を追加
+        /// </summary>
+        /// <param name="sb"></param>
+        /// <param name="title"></param>
+        /// <param name="value"></param>
+        private void AppendLicense(ref StringBuilder sb, string title, string value)
+        {
+            if (value == null) return;
+
+            sb.Append(title); sb.Append(": ");
+            sb.Append(value);
+            sb.Append("\n");
         }
 
         private void ShowModelPanel()

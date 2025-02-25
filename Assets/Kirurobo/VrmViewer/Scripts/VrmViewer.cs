@@ -261,9 +261,9 @@ namespace Kirurobo
 
             var characterController = model.GetComponent<VrmCharacterBehaviour>();
 
-            // Apply the motion if AllowedUser is equal to "Everyone".
-            if (meta.AvatarPermission == AvatarPermissionType.everyone)
-            {
+            // // Apply the motion if AllowedUser is equal to "Everyone".
+            // if (meta.AvatarPermission == AvatarPermissionType.everyone)
+            // {
                 //_motionMode = VrmCharacterBehaviour.MotionMode.Default;
                 if (uiController)
                 {
@@ -280,16 +280,16 @@ namespace Kirurobo
                 //characterController.SetAnimator(anim);
                 characterController.SetMotionMode(_motionMode);
 
-            }
-            else
-            {
-                characterController.SetMotionMode(VrmCharacterBehaviour.MotionMode.Default);
-                _motionMode = VrmCharacterBehaviour.MotionMode.Default;
+            // }
+            // else
+            // {
+            //     characterController.SetMotionMode(VrmCharacterBehaviour.MotionMode.Default);
+            //     _motionMode = VrmCharacterBehaviour.MotionMode.Default;
                 
-                if (uiController) {
-                    uiController.enableRandomEmotion = false;
-                }
-            }
+            //     if (uiController) {
+            //         uiController.enableRandomEmotion = false;
+            //     }
+            // }
         }
 
         /// <summary>
@@ -326,7 +326,6 @@ namespace Kirurobo
                 var instance = vrmInstance.GetComponent<RuntimeGltfInstance>();
                 instance.ShowMeshes();
                 instance.EnableUpdateWhenOffscreen();
-
             }
             catch (Exception ex)
             {

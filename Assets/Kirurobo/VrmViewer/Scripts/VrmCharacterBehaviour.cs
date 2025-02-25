@@ -8,7 +8,9 @@
  */
 
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.Android;
 using UniVRM10;
 
 namespace Kirurobo
@@ -39,17 +41,7 @@ namespace Kirurobo
             Dance = 3,
         }
 
-        /// <summary>
-        /// 表情のプリセット
-        /// </summary>
-        public static ExpressionPreset[] EmotionPresets =
-        {
-            ExpressionPreset.relaxed,
-            ExpressionPreset.happy,
-            ExpressionPreset.sad,
-            ExpressionPreset.angry,
-            ExpressionPreset.surprised,
-        };
+        internal ExpressionKey[] emotionKeys;
 
         internal int emotionIndex = 0; // 表情の状態
         internal float emotionRate = 0f; // その表情になっている程度 0～1
@@ -118,6 +110,9 @@ namespace Kirurobo
 
             if (runtimeExpression != null)
             {
+                emotionKeys = runtimeExpression.ExpressionKeys.ToArray();
+            } else {
+                emotionKeys = new ExpressionKey[0];
             }
 
             if (!headTransform)
@@ -135,8 +130,13 @@ namespace Kirurobo
             if (!uiController)
             {
                 uiController = FindAnyObjectByType<VrmUiController>();
+
+                // 表情のドロップダウンを用意
+                uiController.SetupExpressionDropdown(emotionKeys);
+
+                // UIコントローラーのイベントを受け取る
                 uiController.OnMotionChanged += SetMotionMode;
-                uiController.OnBlendShapeChanged += SetBlendShape;
+                uiController.OnExpressionChanged += SetExpression;
             }
 
             // AudioSourceを取得
@@ -234,10 +234,10 @@ namespace Kirurobo
         /// UI側で表情を変更されたときに呼ばれる処理
         /// </summary>
         /// <param name="index">ブレンドシェイプ番号。-1だと変更なしで量のみ更新</param>
-        public void SetBlendShape(int index, float value = -1f)
+        public void SetExpression(int index, float value = -1f)
         {
             bool updated = false;
-            if (index >= 0 && index < EmotionPresets.Length) {
+            if (index >= 0 && index < emotionKeys.Length) {
                 emotionIndex = index;
                 updated = true;
             }
@@ -290,7 +290,7 @@ namespace Kirurobo
         /// </summary>
         private void UpdateHead()
         {
-            if (runtimeLookAt != null) return;
+            if (runtimeLookAt == null) return;
             Quaternion rot = Quaternion.Euler(-runtimeLookAt.Pitch, runtimeLookAt.Yaw, 0f);
             headTransform.rotation = Quaternion.Slerp(headTransform.rotation, rot, 0.2f);
 
@@ -301,7 +301,7 @@ namespace Kirurobo
         /// </summary>
         private void Blink()
         {
-            if (runtimeExpression != null) return;
+            if (runtimeExpression == null) return;
 
             float now = Time.timeSinceLevelLoad;
             float span;
@@ -309,14 +309,15 @@ namespace Kirurobo
             float blinkValue = 0f;
 
             ExpressionKey blinkPresetKey = ExpressionKey.CreateFromPreset(ExpressionPreset.blink);
-            
-            // 表情が笑顔の時は目が閉じられるため、まばたきは無効とする
-            if (EmotionPresets[emotionIndex] == ExpressionPreset.happy)
-            {
-                blinkState = BlinkState.None;
-                blinkValue = 0f;
-                runtimeExpression.SetWeight(blinkPresetKey, blinkValue);
-            }
+
+            //// VRM 0 では Relaxed、VRM 1 では Happy ? 明確ではないためコメントアウト
+            // // 表情が笑顔の時は目が閉じられるため、まばたきは無効とする
+            // if (emotionKeys[emotionIndex].Equals(ExpressionKey.Relaxed))
+            // {
+            //     blinkState = BlinkState.None;
+            //     blinkValue = 0f;
+            //     runtimeExpression.SetWeight(blinkPresetKey, blinkValue);
+            // }
             
             // まばたきの状態遷移
             switch (blinkState)
@@ -391,7 +392,7 @@ namespace Kirurobo
                 // 表情を与えるなら、ランダムで次の表情を決定
                 if (emotionSpeed > 0)
                 {
-                    emotionIndex = Random.Range(0, EmotionPresets.Length - 1);
+                    emotionIndex = Random.Range(0, emotionKeys.Length - 1);
                 }
             }
             else
@@ -410,17 +411,17 @@ namespace Kirurobo
         /// </summary>
         private void UpdateEmotion()
         {
-            if (runtimeExpression != null) return;
+            if (runtimeExpression == null) return;
 
             var weights = new List<KeyValuePair<ExpressionKey, float>>();
 
             int index = 0;
-            foreach (var shape in EmotionPresets)
+            foreach (var key in emotionKeys)
             {
                 float val = 0f;
                 // 現在選ばれている表情のみ値を入れ、他はゼロとする
                 if (index == emotionIndex) val = emotionRate;
-                weights.Add(new KeyValuePair<ExpressionKey, float>(ExpressionKey.CreateFromPreset(shape), val));
+                weights.Add(new KeyValuePair<ExpressionKey, float>(key, val));
                 index++;
             }
 
@@ -430,7 +431,7 @@ namespace Kirurobo
         }
 
         /// <summary>
-        /// UIのブレンドシェイプ表示を更新
+        /// UIの表情表示を更新
         /// </summary>
         private void UpdateUI()
         {
@@ -438,8 +439,8 @@ namespace Kirurobo
 
             if (uiController.enableRandomEmotion)
             {
-                uiController.SetBlendShape(emotionIndex);
-                uiController.SetBlendShapeValue(emotionRate);
+                uiController.SetExpression(emotionIndex);
+                uiController.SetExpressionValue(emotionRate);
             }
         }
 
