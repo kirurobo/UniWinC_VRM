@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.Serialization;
 using UniVRM10;
 using System.Linq;
+using TMPro;
 
 namespace Kirurobo
 {
@@ -73,10 +74,6 @@ namespace Kirurobo
 
         public Material uiMaterial;
 
-        // ローディング中表示のオブジェクト
-        public RectTransform loadingPanel;
-        public Text loadingText;
-
         // プレビュー部分のオブジェクト
         public Text previewVrmVersion;
         public RawImage previewImage;
@@ -86,6 +83,11 @@ namespace Kirurobo
         public Text previewContact;
         public Text previewReference;
 
+        // 影を描画するオブジェクト
+        public Transform shadowPlane;
+
+        // ローディング中表示。panelだと現状ドラッグで移動できないのが不自然なためTMPとした
+        public TextMeshPro loadingText;
 
 
         /// <summary>
@@ -248,20 +250,26 @@ namespace Kirurobo
 
             if (windowController)
             {
+                // 背景まで影になるため、透過時のみ影を表示する
+                SetShadowVisibility(windowController.isTransparent);
+
                 // プロパティをバインド
                 if (transparentToggle)
                 {
-                    transparentToggle.onValueChanged.AddListener((value => windowController.isTransparent = value));
+                    transparentToggle.onValueChanged.AddListener(value => {
+                        windowController.isTransparent = value;
+                        SetShadowVisibility(value);     // 背景まで影になるため、当面透過時のみ影を表示
+                    });
                 }
 
                 if (zoomedToggle)
                 {
-                    zoomedToggle.onValueChanged.AddListener((value => windowController.isZoomed = value));
+                    zoomedToggle.onValueChanged.AddListener(value => windowController.isZoomed = value);
                 }
 
                 if (topmostToggle)
                 {
-                    topmostToggle.onValueChanged.AddListener((value => windowController.isTopmost = value));
+                    topmostToggle.onValueChanged.AddListener(value => windowController.isTopmost = value);
                 }
             }
 
@@ -401,6 +409,18 @@ namespace Kirurobo
         }
 
         /// <summary>
+        /// 影表示の有無を切り替える
+        /// </summary>
+        /// <param name="visible"></param>
+        private void SetShadowVisibility(bool visible)
+        {
+            if (shadowPlane)
+            {
+                shadowPlane.gameObject.SetActive(visible);
+            }
+        }
+
+        /// <summary>
         /// マウスホイールでのズーム方法を選択
         /// </summary>
         /// <param name="no">選択肢の番号（Dropdownを編集したら下記も要編集）</param>
@@ -408,7 +428,10 @@ namespace Kirurobo
         {
             if (no == 1)
             {
-                zoomType = CameraController.ZoomType.Dolly;
+                //zoomType = CameraController.ZoomType.Dolly;
+
+                // 現在、影描画平面との距離に影響があるため、Dollyは使わない
+                zoomType = CameraController.ZoomType.Zoom;
             }
             else
             {
@@ -687,21 +710,19 @@ namespace Kirurobo
 
         public void ShowLoading(string message)
         {
-            if (loadingPanel)
+            if (loadingText)
             {
-                if (loadingText) loadingText.text = message;
-                // パネルの位置をリセット
-                loadingPanel.anchoredPosition = Vector2.zero;
-                loadingPanel.gameObject.SetActive(true);
+                loadingText.text = message;
+                loadingText.gameObject.SetActive(true);
             }
         }
 
         public void HideLoading()
         {
-            if (loadingPanel)
+            if (loadingText)
             {
-                if (loadingText) loadingText.text = "Loading...";
-                loadingPanel.gameObject.SetActive(false);
+                loadingText.text = "Loading...";
+                loadingText.gameObject.SetActive(false);
             }
         }
 
@@ -738,8 +759,16 @@ namespace Kirurobo
                 previewContact.text = vrm0Meta.contactInformation;
                 previewReference.text = vrm0Meta.reference;
             }
-            
-            tabPanelManager.Select(0); // 0番がモデル情報のパネルという前提で、それを開く
+
+            Invoke("ShowModelPanel", 0.1f);
+            //// エディタでは動いたが、ビルド後はここで tabPanelManager を利用不可
+            //tabPanelManager.Select(0); // 0番がモデル情報のパネルという前提で、それを開く
+        }
+
+        private void ShowModelPanel()
+        {
+            // 0番がモデル情報のパネルという前提で、それを開く
+            if (tabPanelManager) tabPanelManager.Select(0);
         }
 
         /// <summary>
