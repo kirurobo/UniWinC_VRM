@@ -7,10 +7,11 @@
  * License: MIT
  */
 
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
-using VRM;
+using UnityEngine.Android;
+using UniVRM10;
 
 namespace Kirurobo
 {
@@ -40,18 +41,7 @@ namespace Kirurobo
             Dance = 3,
         }
 
-        /// <summary>
-        /// 表情のプリセット
-        /// </summary>
-        public static BlendShapePreset[] EmotionPresets =
-        {
-            BlendShapePreset.Neutral,
-            BlendShapePreset.Joy,
-            BlendShapePreset.Sorrow,
-            BlendShapePreset.Angry,
-            BlendShapePreset.Fun,
-            BlendShapePreset.Unknown,
-        };
+        internal ExpressionKey[] emotionKeys;
 
         internal int emotionIndex = 0; // 表情の状態
         internal float emotionRate = 0f; // その表情になっている程度 0～1
@@ -63,8 +53,8 @@ namespace Kirurobo
 
         private float emotionPromoteTime = 0.5f; // 表情が変化しきるまでの時間 [s]
 
-        private VRMLookAtHead lookAtHead;
-        private VRMBlendShapeProxy blendShapeProxy;
+        private Vrm10RuntimeLookAt runtimeLookAt;
+        private Vrm10RuntimeExpression runtimeExpression;
 
         private GameObject targetObject; // 視線目標オブジェクト
         private Transform headTransform; // Head transform
@@ -101,15 +91,28 @@ namespace Kirurobo
                 hasNewTargetObject = true;
             }
 
-            lookAtHead = GetComponent<VRMLookAtHead>();
-            blendShapeProxy = GetComponent<VRMBlendShapeProxy>();
-
-            if (lookAtHead)
+            var vrm10 = GetComponent<Vrm10Instance>();
+            if (vrm10 != null)
             {
-                lookAtHead.Target = targetObject.transform;
-                lookAtHead.UpdateType = UpdateType.LateUpdate;
+                runtimeLookAt = vrm10.Runtime.LookAt;
+                runtimeExpression = vrm10.Runtime.Expression;
+            }
 
-                headTransform = lookAtHead.Head;
+            if (runtimeLookAt != null)
+            {
+                // 視線を送るオブジェクトを設定
+                vrm10.LookAtTargetType = VRM10ObjectLookAt.LookAtTargetTypes.SpecifiedTransform;
+                vrm10.LookAtTarget = targetObject.transform;
+                
+                // 頭部分を代表するTransformを取得
+                headTransform = runtimeLookAt.LookAtOriginTransform;
+            }
+
+            if (runtimeExpression != null)
+            {
+                emotionKeys = runtimeExpression.ExpressionKeys.ToArray();
+            } else {
+                emotionKeys = new ExpressionKey[0];
             }
 
             if (!headTransform)
@@ -127,8 +130,13 @@ namespace Kirurobo
             if (!uiController)
             {
                 uiController = FindAnyObjectByType<VrmUiController>();
+
+                // 表情のドロップダウンを用意
+                uiController.SetupExpressionDropdown(emotionKeys);
+
+                // UIコントローラーのイベントを受け取る
                 uiController.OnMotionChanged += SetMotionMode;
-                uiController.OnBlendShapeChanged += SetBlendShape;
+                uiController.OnExpressionChanged += SetExpression;
             }
 
             // AudioSourceを取得
@@ -226,10 +234,10 @@ namespace Kirurobo
         /// UI側で表情を変更されたときに呼ばれる処理
         /// </summary>
         /// <param name="index">ブレンドシェイプ番号。-1だと変更なしで量のみ更新</param>
-        public void SetBlendShape(int index, float value = -1f)
+        public void SetExpression(int index, float value = -1f)
         {
             bool updated = false;
-            if (index >= 0 && index < EmotionPresets.Length) {
+            if (index >= 0 && index < emotionKeys.Length) {
                 emotionIndex = index;
                 updated = true;
             }
@@ -282,7 +290,8 @@ namespace Kirurobo
         /// </summary>
         private void UpdateHead()
         {
-            Quaternion rot = Quaternion.Euler(-lookAtHead.Pitch, lookAtHead.Yaw, 0f);
+            if (runtimeLookAt == null) return;
+            Quaternion rot = Quaternion.Euler(-runtimeLookAt.Pitch, runtimeLookAt.Yaw, 0f);
             headTransform.rotation = Quaternion.Slerp(headTransform.rotation, rot, 0.2f);
 
         }
@@ -292,22 +301,23 @@ namespace Kirurobo
         /// </summary>
         private void Blink()
         {
-            if (!blendShapeProxy) return;
+            if (runtimeExpression == null) return;
 
             float now = Time.timeSinceLevelLoad;
             float span;
 
             float blinkValue = 0f;
 
-            BlendShapeKey blinkShapeKey = BlendShapeKey.CreateFromPreset(BlendShapePreset.Blink);
-            
-            // 表情が笑顔の時は目が閉じられるため、まばたきは無効とする
-            if (EmotionPresets[emotionIndex] == BlendShapePreset.Joy)
-            {
-                blinkState = BlinkState.None;
-                blinkValue = 0f;
-                blendShapeProxy.ImmediatelySetValue(blinkShapeKey, blinkValue);
-            }
+            ExpressionKey blinkPresetKey = ExpressionKey.CreateFromPreset(ExpressionPreset.blink);
+
+            //// VRM 0 では Relaxed、VRM 1 では Happy ? 明確ではないためコメントアウト
+            // // 表情が笑顔の時は目が閉じられるため、まばたきは無効とする
+            // if (emotionKeys[emotionIndex].Equals(ExpressionKey.Relaxed))
+            // {
+            //     blinkState = BlinkState.None;
+            //     blinkValue = 0f;
+            //     runtimeExpression.SetWeight(blinkPresetKey, blinkValue);
+            // }
             
             // まばたきの状態遷移
             switch (blinkState)
@@ -324,7 +334,7 @@ namespace Kirurobo
                     {
                         blinkValue = span / BlinkTime;
                     }
-                    blendShapeProxy.ImmediatelySetValue(blinkShapeKey, blinkValue);
+                    runtimeExpression.SetWeight(blinkPresetKey, blinkValue);
                     break;
                 case BlinkState.Opening:
                     span = now - lastBlinkTime - BlinkTime;
@@ -338,7 +348,7 @@ namespace Kirurobo
                     {
                         blinkValue = 1f - (span / BlinkTime);
                     }
-                    blendShapeProxy.ImmediatelySetValue(blinkShapeKey, blinkValue);
+                    runtimeExpression.SetWeight(blinkPresetKey, blinkValue);
                     break;
                 default:
                     if (now >= nextBlinkTime)
@@ -382,7 +392,7 @@ namespace Kirurobo
                 // 表情を与えるなら、ランダムで次の表情を決定
                 if (emotionSpeed > 0)
                 {
-                    emotionIndex = Random.Range(0, EmotionPresets.Length - 1);
+                    emotionIndex = Random.Range(0, emotionKeys.Length - 1);
                 }
             }
             else
@@ -401,27 +411,27 @@ namespace Kirurobo
         /// </summary>
         private void UpdateEmotion()
         {
-            if (!blendShapeProxy) return;
+            if (runtimeExpression == null) return;
 
-            var blendShapes = new List<KeyValuePair<BlendShapeKey, float>>();
+            var weights = new List<KeyValuePair<ExpressionKey, float>>();
 
             int index = 0;
-            foreach (var shape in EmotionPresets)
+            foreach (var key in emotionKeys)
             {
                 float val = 0f;
                 // 現在選ばれている表情のみ値を入れ、他はゼロとする
                 if (index == emotionIndex) val = emotionRate;
-                blendShapes.Add(new KeyValuePair<BlendShapeKey, float>(BlendShapeKey.CreateFromPreset(shape), val));
+                weights.Add(new KeyValuePair<ExpressionKey, float>(key, val));
                 index++;
             }
 
-            blendShapeProxy.SetValues(blendShapes);
+            runtimeExpression.SetWeights(weights);
 
             UpdateUI();
         }
 
         /// <summary>
-        /// UIのブレンドシェイプ表示を更新
+        /// UIの表情表示を更新
         /// </summary>
         private void UpdateUI()
         {
@@ -429,8 +439,8 @@ namespace Kirurobo
 
             if (uiController.enableRandomEmotion)
             {
-                uiController.SetBlendShape(emotionIndex);
-                uiController.SetBlendShapeValue(emotionRate);
+                uiController.SetExpression(emotionIndex);
+                uiController.SetExpressionValue(emotionRate);
             }
         }
 
@@ -469,9 +479,6 @@ namespace Kirurobo
             // IK_HANDというアニメーションのときのみ、手を伸ばす
             if (animState.IsName("IK_HAND") || animState.IsName("IK_HAND_REVERSE"))
             {
-                // float sqrDistanceRight = (cursorPosition - rightHandTransform.position).sqrMagnitude;
-                // float sqrDistanceLeft = (cursorPosition - leftHandTransform.position).sqrMagnitude;
-                
                 // 手先ではなく、右肩、左肩どちらにカーソルが近いかで、左右どちらの腕を伸ばすか決定する
                 float sqrDistanceRight = (cursorPosition - rightShoulderTransform.position).sqrMagnitude;
                 float sqrDistanceLeft = (cursorPosition - leftShoulderTransform.position).sqrMagnitude;
@@ -482,20 +489,16 @@ namespace Kirurobo
                     // 右手とカーソルの距離の2乗
                     float sqrDistance = sqrDistanceRight;
 
-                    // モデルやアニメーションの状態によるが、位置調整
-                    //cursorPosition.y -= 0.05f;
-
                     // 右手からの距離が近ければ追従させる
                     if ((sqrDistance < cursorGrabingSqrMagnitude))
                     {
-                        //lastRightHandWeight = Mathf.Lerp(lastRightHandWeight, 0.7f, 0.1f);
-                        lastRightHandWeight = Mathf.Lerp(lastRightHandWeight, 0.9f, 0.02f);
-
-                        Quaternion handRotation = Quaternion.Euler(-90f, 180f, 0f);
+                        lastRightHandWeight = Mathf.Lerp(lastRightHandWeight, 0.9f, 0.01f);
 
                         animator.SetIKPosition(AvatarIKGoal.RightHand, cursorPosition);
                         animator.SetIKPositionWeight(AvatarIKGoal.RightHand, lastRightHandWeight);
 
+                        //// 回転
+                        //Quaternion handRotation = Quaternion.Euler(-90f, 180f, 0f);
                         //animator.SetIKRotation(AvatarIKGoal.RightHand, handRotation);
                         //animator.SetIKRotationWeight(AvatarIKGoal.RightHand, lastRightHandWait);
 
@@ -508,20 +511,16 @@ namespace Kirurobo
                     // 左とカーソルの距離の2乗
                     float sqrDistance = sqrDistanceLeft;
 
-                    // モデルやアニメーションの状態によるが、位置調整
-                    //cursorPosition.x += 0.05f;
-
                     // 左手からの距離が近ければ追従させる
                     if ((sqrDistance < cursorGrabingSqrMagnitude))
                     {
-                        //lastLeftHandWeight = Mathf.Lerp(lastLeftHandWeight, 0.7f, 0.1f);
-                        lastLeftHandWeight = Mathf.Lerp(lastLeftHandWeight, 0.9f, 0.02f);
-
-                        //Quaternion handRotation = Quaternion.Euler(-90f, 180f, 0f);
+                        lastLeftHandWeight = Mathf.Lerp(lastLeftHandWeight, 0.9f, 0.01f);
 
                         animator.SetIKPosition(AvatarIKGoal.LeftHand, cursorPosition);
                         animator.SetIKPositionWeight(AvatarIKGoal.LeftHand, lastLeftHandWeight);
 
+                        //// 回転
+                        //Quaternion handRotation = Quaternion.Euler(-90f, 180f, 0f);
                         //animator.SetIKRotation(AvatarIKGoal.LeftHand, handRotation);
                         //animator.SetIKRotationWeight(AvatarIKGoal.LeftHand, lastLeftHandWait);
 

@@ -1,7 +1,7 @@
 ﻿{
   "labels": {
     "Motion": "Motion",
-    "Emotion": "Emotion",
+    "Expression": "Expression",
     "Window": "Window",
     "Transparent": "Transparent",
     "Topmost": "Topmost",
@@ -27,5 +27,20 @@
     "TabButtonMotion": "Motion",
     "TabButtonConfig": "Config",
     "TabButtonAbout": "About"
+  },
+  "licenses": {
+    "Personation": "Personation / Characterization permission",
+    "AllowedUser": "A person who can perform with this avatar",
+    "ViolentUsage": "Violent acts using this avatar",
+    "SexualUsage": "Sexuality acts using this avatar",
+    "CommercialUsage": "For commercial use",
+    "PoliticalUsage": "Permits to use this model in political or religious contents",
+    "AntiUsage": "Pemits to use this model in contents contain anti-social activities or hate speeches",
+    "OtherPermissionUrl": "The URL links of other permission",
+    "DistributionLicenseType": "Redistribution / Modification license",
+    "Credit": "Forces or abandones to display the credit",
+    "Redistribution": "Rermits redistribution",
+    "Modification": "Controls the condition to modify",
+    "OtherLicense": "The URL links of other license"
   }
 }

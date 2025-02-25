@@ -2,6 +2,7 @@
   "dependencies": {
     "com.kirurobo.uniwinc": "https://github.com/kirurobo/UniWindowController.git#upm",
     "com.unity.ide.visualstudio": "2.0.22",
+    "com.unity.render-pipelines.universal": "17.0.3",
     "com.unity.timeline": "1.8.8",
     "com.unity.ugui": "2.0.0",
     "com.vrmc.gltf": "https://github.com/vrm-c/UniVRM.git?path=/Assets/UniGLTF",

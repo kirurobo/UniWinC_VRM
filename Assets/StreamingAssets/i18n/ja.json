@@ -1,7 +1,7 @@
 ﻿{
   "labels": {
     "Motion": "モーション",
-    "Emotion": "表情",
+    "Expression": "表情",
     "Window": "ウィンドウ",
     "Transparent": "透明化",
     "Topmost": "最前面",
@@ -27,5 +27,20 @@
     "TabButtonMotion": "動き",
     "TabButtonConfig": "設定",
     "TabButtonAbout": "情報"
+  },
+  "licenses": {
+    "Personation": "アバターの人格に関する許諾",
+    "AllowedUser": "アバターへの人格付与",
+    "ViolentUsage": "過度に暴力的な表現",
+    "SexualUsage": "過度に性的な表現",
+    "CommercialUsage": "商用利用",
+    "PoliticalUsage": "政治・宗教利用",
+    "AntiUsage": "反社会的・憎悪表現",
+    "OtherPermissionUrl": "その他のライセンス",
+    "DistributionLicenseType": "再配布・改変許諾範囲",
+    "Credit": "クレジット表記",
+    "Redistribution": "再配布",
+    "Modification": "改変",
+    "OtherLicense": "その他の条件"
   }
 }

@@ -1,10 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using Kirurobo;
 using UnityEngine.Serialization;
-using VRM;
+using UniVRM10;
+using System.Linq;
+using TMPro;
+using System.Text;
+using System.Collections.Generic;
 
 namespace Kirurobo
 {
@@ -42,8 +43,8 @@ namespace Kirurobo
         public Toggle motionToggleDance;
         public Slider volumeSlider;
         public Toggle emotionToggleRandom;
-        public Dropdown blendShapeDropdown;
-        public Slider blendShapeSlider;
+        public Dropdown expressionDropdown;
+        public Slider expressionSlider;
 
         public Button tabButtonModel;
         public Button tabButtonControl;
@@ -61,8 +62,6 @@ namespace Kirurobo
         private Vector2 originalAnchoredPosition;
         private Canvas canvas;
 
-        private VRMLoader.VRMPreviewLocale vrmLoaderLocale;
-        private VRMLoader.VRMPreviewUI vrmLoaderUI;
         private VrmUiLocale uiLocale;
 
         private TabPanelManager tabPanelManager;
@@ -70,12 +69,28 @@ namespace Kirurobo
         public delegate void motionChangedDelegate(VrmCharacterBehaviour.MotionMode mode);
         public motionChangedDelegate OnMotionChanged;
 
-        public delegate void blendShapeChangedDelegate(int index = -1, float value = -1f);
-        public blendShapeChangedDelegate OnBlendShapeChanged;
+        public delegate void expressionChangedDelegate(int index = -1, float value = -1f);
+        public expressionChangedDelegate OnExpressionChanged;
 
         private AudioSource audioSource;
 
         public Material uiMaterial;
+
+        // プレビュー部分のオブジェクト
+        public Text previewVrmVersion;
+        public RawImage previewImage;
+        public Text previewText;
+        public Text previewVersion;
+        public Text previewAuthor;
+        public Text previewContact;
+        public Text previewReference;
+        public Text previewLicense;
+
+        // 影を描画するオブジェクト
+        public Transform shadowPlane;
+
+        // ローディング中表示。panelだと現状ドラッグで移動できないのが不自然なためTMPとした
+        public TextMeshPro loadingText;
 
 
         /// <summary>
@@ -107,8 +122,8 @@ namespace Kirurobo
             set
             {
                 if (emotionToggleRandom) emotionToggleRandom.isOn = value;
-                if (blendShapeDropdown) blendShapeDropdown.interactable = !value;
-                if (blendShapeSlider) blendShapeSlider.interactable = !value;
+                if (expressionDropdown) expressionDropdown.interactable = !value;
+                if (expressionSlider) expressionSlider.interactable = !value;
             }
         }
 
@@ -210,17 +225,11 @@ namespace Kirurobo
             // カメラ操作スクリプト
             cameraController = FindAnyObjectByType<CameraController>();
 
-            vrmLoaderLocale = this.GetComponentInChildren<VRMLoader.VRMPreviewLocale>();
-            vrmLoaderUI = this.GetComponentInChildren<VRMLoader.VRMPreviewUI>();
             uiLocale = this.GetComponentInChildren<VrmUiLocale>();
             tabPanelManager = this.GetComponentInChildren<TabPanelManager>();
 
-            // 中央基準にする
-            panel.anchorMin = panel.anchorMax = panel.pivot = new Vector2(0.5f, 0.5f);
+            // パネルの初期位置を記憶
             originalAnchoredPosition = panel.anchoredPosition;
-
-            // 表情の選択肢を準備
-            SetupBlendShapeDropdown();
 
             // Load settings.
             Load();
@@ -241,20 +250,26 @@ namespace Kirurobo
 
             if (windowController)
             {
+                // 背景まで影になるため、透過時のみ影を表示する
+                SetShadowVisibility(windowController.isTransparent);
+
                 // プロパティをバインド
                 if (transparentToggle)
                 {
-                    transparentToggle.onValueChanged.AddListener((value => windowController.isTransparent = value));
+                    transparentToggle.onValueChanged.AddListener(value => {
+                        windowController.isTransparent = value;
+                        SetShadowVisibility(value);     // 背景まで影になるため、当面透過時のみ影を表示
+                    });
                 }
 
                 if (zoomedToggle)
                 {
-                    zoomedToggle.onValueChanged.AddListener((value => windowController.isZoomed = value));
+                    zoomedToggle.onValueChanged.AddListener(value => windowController.isZoomed = value);
                 }
 
                 if (topmostToggle)
                 {
-                    topmostToggle.onValueChanged.AddListener((value => windowController.isTopmost = value));
+                    topmostToggle.onValueChanged.AddListener(value => windowController.isTopmost = value);
                 }
             }
 
@@ -270,14 +285,14 @@ namespace Kirurobo
             //if (motionToggleRandom) { motionToggleRandom.onValueChanged.AddListener(val => motionMode = VrmCharacterBehaviour.MotionMode.Random); }
 
             // 表情の選択肢が変更されたときの処理
-            if (blendShapeDropdown)
+            if (expressionDropdown)
             {
-                blendShapeDropdown.onValueChanged.AddListener(OnBlendShapeIndexChanged);
+                expressionDropdown.onValueChanged.AddListener(OnExpressionIndexChanged);
             }
             // 表情スライダーの値が変更されたときの処理
-            if (blendShapeSlider)
+            if (expressionSlider)
             {
-                blendShapeSlider.onValueChanged.AddListener(OnBlendShapeSliderChanged);
+                expressionSlider.onValueChanged.AddListener(OnExpressionSliderChanged);
             }
 
             // 直接バインドしない項目の初期値とイベントリスナーを設定
@@ -321,7 +336,7 @@ namespace Kirurobo
             }
 
             // Show menu on startup.
-            Show(null);
+            Show();
         }
 
         public void Save()
@@ -394,6 +409,18 @@ namespace Kirurobo
         }
 
         /// <summary>
+        /// 影表示の有無を切り替える
+        /// </summary>
+        /// <param name="visible"></param>
+        private void SetShadowVisibility(bool visible)
+        {
+            if (shadowPlane)
+            {
+                shadowPlane.gameObject.SetActive(visible);
+            }
+        }
+
+        /// <summary>
         /// マウスホイールでのズーム方法を選択
         /// </summary>
         /// <param name="no">選択肢の番号（Dropdownを編集したら下記も要編集）</param>
@@ -401,7 +428,10 @@ namespace Kirurobo
         {
             if (no == 1)
             {
-                zoomType = CameraController.ZoomType.Dolly;
+                //zoomType = CameraController.ZoomType.Dolly;
+
+                // 現在、影描画平面との距離に影響があるため、Dollyは使わない
+                zoomType = CameraController.ZoomType.Zoom;
             }
             else
             {
@@ -468,36 +498,35 @@ namespace Kirurobo
                     break;
             }
 
-            if (vrmLoaderLocale) vrmLoaderLocale.SetLocale(lang);
             if (uiLocale) uiLocale.SetLocale(lang);
         }
 
         /// <summary>
         /// 表情の選択肢を初期化
         /// </summary>
-        private void SetupBlendShapeDropdown()
+        internal void SetupExpressionDropdown(ExpressionKey[] keys = null)
         {
-            if (!blendShapeDropdown) return;
+            if (!expressionDropdown) return;
 
-            blendShapeDropdown.options.Clear();
-            foreach (var preset in VrmCharacterBehaviour.EmotionPresets)
+            expressionDropdown.options.Clear();
+            foreach (var key in keys)
             {
-                blendShapeDropdown.options.Add(new Dropdown.OptionData(preset.ToString()));
+                expressionDropdown.options.Add(new Dropdown.OptionData(key.Name));
             }
 
-            blendShapeDropdown.RefreshShownValue();
+            expressionDropdown.RefreshShownValue();
         }
 
         /// <summary>
         /// Apply the dropdown index
         /// </summary>
         /// <param name="index"></param>
-        internal void SetBlendShape(int index)
+        internal void SetExpression(int index)
         {
-            if (blendShapeDropdown)
+            if (expressionDropdown)
             {
-                blendShapeDropdown.value = index;
-                blendShapeDropdown.RefreshShownValue();
+                expressionDropdown.value = index;
+                expressionDropdown.RefreshShownValue();
             }
         }
 
@@ -505,24 +534,24 @@ namespace Kirurobo
         /// Apply the slide value
         /// </summary>
         /// <param name="value"></param>
-        internal void SetBlendShapeValue(float value)
+        internal void SetExpressionValue(float value)
         {
-            if (blendShapeSlider)
+            if (expressionSlider)
             {
-                blendShapeSlider.value = value;
+                expressionSlider.value = value;
             }
         }
 
         /// <summary>
         /// 表情の選択肢が変更されたときの処理
         /// </summary>
-        private void OnBlendShapeIndexChanged(int index) {
+        private void OnExpressionIndexChanged(int index) {
             // 表情がランダムになっている場合は何もしない
             if (emotionToggleRandom && emotionToggleRandom.isOn) return;
 
-            if (OnBlendShapeChanged != null)
+            if (OnExpressionChanged != null)
             {
-                OnBlendShapeChanged.Invoke(index, -1f);
+                OnExpressionChanged.Invoke(index, -1f);
             }
         }
 
@@ -530,14 +559,14 @@ namespace Kirurobo
         /// 表情スライダーの値が変更されたときの処理
         /// </summary>
         /// <param name="value">-1fだと変更しない</param>
-        private void OnBlendShapeSliderChanged(float value)
+        private void OnExpressionSliderChanged(float value)
         {
             // 表情がランダムになっている場合は何もしない
             if (emotionToggleRandom && emotionToggleRandom.isOn) return;
 
-            if (OnBlendShapeChanged != null)
+            if (OnExpressionChanged != null)
             {
-                OnBlendShapeChanged.Invoke(-1, value);
+                OnExpressionChanged.Invoke(-1, value);
             }
         }
 
@@ -659,14 +688,16 @@ namespace Kirurobo
         {
             if (panel)
             {
+                // パネルの左上が指定座標にくるものとする
                 Vector2 pos = mousePosition;
                 float w = panel.rect.width;
                 float h = panel.rect.height;
+                Vector2 pivot = panel.pivot;
 
-                pos.x += Mathf.Max(w * 0.5f - pos.x, 0f); // 左にはみ出していれば右に寄せる
-                pos.y += Mathf.Max(h * 0.5f - pos.y, 0f); // 下にはみ出していれば上に寄せる
-                pos.x -= Mathf.Max(pos.x - Screen.width + w * 0.5f, 0f); // 右にはみ出していれば左に寄せる
-                pos.y -= Mathf.Max(pos.y - Screen.height + h * 0.5f, 0f); // 上にはみ出していれば下に寄せる
+                pos.x += Mathf.Max(w * pivot.x - pos.x, 0f); // 左にはみ出していれば右に寄せる
+                pos.y += Mathf.Max(h * pivot.y - pos.y, 0f); // 下にはみ出していれば上に寄せる
+                pos.x -= Mathf.Max(pos.x - Screen.width + w * (1f - pivot.x), 0f); // 右にはみ出していれば左に寄せる
+                pos.y -= Mathf.Max(pos.y - Screen.height + h * (1f - pivot.y), 0f); // 上にはみ出していれば下に寄せる
 
                 panel.anchorMin = Vector2.zero;
                 panel.anchorMax = Vector2.zero;
@@ -677,35 +708,130 @@ namespace Kirurobo
             if (cameraController) cameraController.enableWheel = false;
         }
 
-        /// <summary>
-        /// メニューを表示する
-        /// </summary>
-        public void Show()
+        public void ShowLoading(string message)
         {
-            if (panel)
+            if (loadingText)
             {
-                // 中央基準にして表示
-                panel.anchorMin = panel.anchorMax = new Vector2(0.5f, 0.5f);
-                panel.anchoredPosition = originalAnchoredPosition;
-                panel.gameObject.SetActive(true);
+                loadingText.text = message;
+                loadingText.gameObject.SetActive(true);
             }
+        }
 
-            if (cameraController) cameraController.enableWheel = false;
+        public void HideLoading()
+        {
+            if (loadingText)
+            {
+                loadingText.text = "Loading...";
+                loadingText.gameObject.SetActive(false);
+            }
         }
 
         /// <summary>
-        /// Show the meta information
+        /// 既定の位置にメニューを表示する
         /// </summary>
-        /// <param name="meta"></param>
-        public void Show(VRM.VRMMetaObject meta)
+        public void Show()
         {
-            if (meta)
+            // 既定では画面中央、やや上部
+            Vector2 pos = new Vector2(Screen.width * 0.5f, Screen.height * 0.75f);
+            Show(pos);
+        }
+
+        public void MetaLoaded(Texture2D thumbnail, UniGLTF.Extensions.VRMC_vrm.Meta meta, UniVRM10.Migration.Vrm0Meta vrm0Meta)
+        {
+            if (thumbnail)
             {
-                if (vrmLoaderUI) vrmLoaderUI.setMeta(meta);
-                if (tabPanelManager) tabPanelManager.Select(0); // 0番がモデル情報のパネルという前提
+                previewImage.texture = thumbnail;
             }
 
-            Show();
+            if (meta != null)
+            {
+                previewVrmVersion.text = "VRM 1";
+                previewText.text = meta.Name;
+                previewVersion.text = meta.Version;
+                previewAuthor.text = ListToString(meta.Authors);
+                previewContact.text = meta.ContactInformation;
+                previewReference.text = ListToString(meta.References);
+
+                VrmUiLocale.LocaleText locale = uiLocale.localeText;
+                if (previewLicense)
+                {
+                    StringBuilder sb = new StringBuilder();
+                    AppendLicense(ref sb, locale.licenses.Personation, meta.AvatarPermission.ToString());
+                    AppendLicense(ref sb, locale.licenses.ViolentUsage, meta.AllowExcessivelyViolentUsage);
+                    AppendLicense(ref sb, locale.licenses.SexualUsage, meta.AllowExcessivelySexualUsage);
+                    AppendLicense(ref sb, locale.licenses.CommercialUsage, meta.CommercialUsage.ToString());
+                    AppendLicense(ref sb, locale.licenses.PoliticalUsage, meta.AllowPoliticalOrReligiousUsage);
+                    AppendLicense(ref sb, locale.licenses.AntiUsage, meta.AllowAntisocialOrHateUsage);
+                    AppendLicense(ref sb, locale.licenses.Credit, meta.CreditNotation.ToString());
+                    AppendLicense(ref sb, locale.licenses.Redistribution, meta.AllowRedistribution);
+                    AppendLicense(ref sb, locale.licenses.Modification, meta.Modification.ToString());
+                    AppendLicense(ref sb, locale.licenses.OtherLicense, meta.OtherLicenseUrl);
+                    previewLicense.text = sb.ToString();
+                }
+            } else if (vrm0Meta != null) {
+                previewVrmVersion.text = "VRM 0";
+                previewText.text = vrm0Meta.title;
+                previewVersion.text = vrm0Meta.version;
+                previewAuthor.text = vrm0Meta.author;
+                previewContact.text = vrm0Meta.contactInformation;
+                previewReference.text = vrm0Meta.reference;
+
+                VrmUiLocale.LocaleText locale = uiLocale.localeText;
+                if (previewLicense)
+                {
+                    StringBuilder sb = new StringBuilder();
+                    AppendLicense(ref sb, locale.licenses.AllowedUser, vrm0Meta.allowedUser.ToString());
+                    AppendLicense(ref sb, locale.licenses.ViolentUsage, vrm0Meta.violentUsage);
+                    AppendLicense(ref sb, locale.licenses.SexualUsage, vrm0Meta.sexualUsage);
+                    AppendLicense(ref sb, locale.licenses.CommercialUsage, vrm0Meta.commercialUsage);
+                    AppendLicense(ref sb, locale.licenses.OtherPermissionUrl, vrm0Meta.otherPermissionUrl);
+                    AppendLicense(ref sb, locale.licenses.OtherLicense, vrm0Meta.otherLicenseUrl);
+                    previewLicense.text = sb.ToString();
+                }
+            }
+
+            Invoke("ShowModelPanel", 0.1f);
+            //// エディタでは動いたが、ビルド後はここで tabPanelManager を利用不可
+            //tabPanelManager.Select(0); // 0番がモデル情報のパネルという前提で、それを開く
+        }
+
+        private string ListToString<T>(List<T> list) {
+            if (list == null) return "";
+            return string.Join(", ", list.ToArray());
+        }
+
+        /// <summary>
+        /// StringBuilderにてライセンスの記述を追加
+        /// </summary>
+        /// <param name="sb"></param>
+        /// <param name="title"></param>
+        /// <param name="value"></param>
+        private void AppendLicense(ref StringBuilder sb, string title, bool? value)
+        {
+            sb.Append(title); sb.Append(": ");
+            sb.Append(value ?? false ? "OK" : "NG");
+            sb.Append("\n");
+        }
+
+        /// <summary>
+        /// StringBuilderにてライセンスの記述を追加
+        /// </summary>
+        /// <param name="sb"></param>
+        /// <param name="title"></param>
+        /// <param name="value"></param>
+        private void AppendLicense(ref StringBuilder sb, string title, string value)
+        {
+            if (value == null) return;
+
+            sb.Append(title); sb.Append(": ");
+            sb.Append(value);
+            sb.Append("\n");
+        }
+
+        private void ShowModelPanel()
+        {
+            // 0番がモデル情報のパネルという前提で、それを開く
+            if (tabPanelManager) tabPanelManager.Select(0);
         }
 
         /// <summary>

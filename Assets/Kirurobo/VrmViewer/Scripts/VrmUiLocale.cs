@@ -3,12 +3,11 @@
  *
  * Author: Kirurobo
  *
- * Original author: m2wasabi, https://github.com/m2wasabi/VRMLoaderUI 
- * Original license: MIT License https://github.com/m2wasabi/VRMLoaderUI/blob/master/LICENSE 
- * 
+ * Original author: m2wasabi, https://github.com/m2wasabi/VRMLoaderUI
+ * Original license: MIT License https://github.com/m2wasabi/VRMLoaderUI/blob/master/LICENSE
+ *
  */
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,6 +21,10 @@ namespace Kirurobo
     public class VrmUiLocale : MonoBehaviour
     {
 
+        public LocaleText localeText
+        {
+            get { return _localeText; }
+        }
         private LocaleText _localeText;
 
         private Transform targetTransform; // 対象のUI要素の親
@@ -78,8 +81,8 @@ namespace Kirurobo
             SetText(ref transforms, "MotionToggleBvh", localeText.labels.Bvh);
             SetText(ref transforms, "MotionToggleDance", localeText.labels.Dance);
             SetText(ref transforms, "VolumeText", localeText.labels.Volume);
-            SetText(ref transforms, "BlendShapeDropdown", localeText.labels.Emotion);
-            SetText(ref transforms, "EmotionModeText", localeText.labels.Emotion);
+            SetText(ref transforms, "ExpressionDropdown", localeText.labels.Expression);
+            SetText(ref transforms, "EmotionModeText", localeText.labels.Expression);
             SetText(ref transforms, "EmotionToggleRandom", localeText.labels.Random);
 
             SetText(ref transforms, "OpenButton", localeText.buttons.Open);
@@ -131,7 +134,7 @@ namespace Kirurobo
         [System.Serializable]
         public struct Labels
         {
-            public string Motion, Emotion;
+            public string Motion, Expression;
             public string Window, Transparent, Topmost, Zoomed;
             public string Language, ZoomType, TransparentType, HitTestType, None, Preset, Random, Dance, Bvh, Volume, Repeat;
         }
@@ -144,10 +147,18 @@ namespace Kirurobo
         }
 
         [System.Serializable]
+        public struct Licenses
+        {
+            public string Personation, AllowedUser, ViolentUsage, SexualUsage, CommercialUsage, PoliticalUsage, AntiUsage, OtherPermissionUrl;
+            public string DistributionLicenseType, Credit, Redistribution, Modification, OtherLicense;
+        }
+
+        [System.Serializable]
         public class LocaleText
         {
             public Labels labels;
             public Buttons buttons;
+            public Licenses licenses;
         }
     }
 }

@@ -10,8 +10,9 @@ using System.IO;
 using UniHumanoid;
 using UnityEngine;
 using UnityEngine.Networking;
-using VRM;
+using UniVRM10;
 using UniGLTF;
+using UniGLTF.Extensions.VRMC_vrm;
 
 namespace Kirurobo
 {
@@ -26,7 +27,7 @@ namespace Kirurobo
 
         private HumanPoseTransfer model;
         private HumanPoseTransfer motion;
-        private VRMMetaObject meta;
+        private VRM10ObjectMeta meta;
 
         public VrmUiController uiController;
         public CameraController cameraController;
@@ -37,7 +38,7 @@ namespace Kirurobo
         public AudioSource audioSource;
 
         public RuntimeAnimatorController animatorController;
-        private RuntimeGltfInstance gltfInstance;
+        private Vrm10Instance vrmInstance;
 
         public VrmCharacterBehaviour.MotionMode motionMode
         {
@@ -184,7 +185,7 @@ namespace Kirurobo
         }
 
         /// <summary>
-        /// A handler for file dropping.
+        /// Load dropped file(s)
         /// </summary>
         /// <param name="files"></param>
         private void Window_OnFilesDropped(string[] files)
@@ -254,15 +255,15 @@ namespace Kirurobo
         /// <param name="motion"></param>
         /// <param name="model"></param>
         /// <param name="meta"></param>
-        private void SetMotion(HumanPoseTransfer motion, HumanPoseTransfer model, VRMMetaObject meta)
+        private void SetMotion(HumanPoseTransfer motion, HumanPoseTransfer model, VRM10ObjectMeta meta)
         {
-            if (!model || !meta) return;
+            if (!model || meta == null) return;
 
             var characterController = model.GetComponent<VrmCharacterBehaviour>();
 
-            // Apply the motion if AllowedUser is equal to "Everyone".
-            if (meta.AllowedUser == AllowedUser.Everyone)
-            {
+            // // Apply the motion if AllowedUser is equal to "Everyone".
+            // if (meta.AvatarPermission == AvatarPermissionType.everyone)
+            // {
                 //_motionMode = VrmCharacterBehaviour.MotionMode.Default;
                 if (uiController)
                 {
@@ -279,88 +280,17 @@ namespace Kirurobo
                 //characterController.SetAnimator(anim);
                 characterController.SetMotionMode(_motionMode);
 
-            }
-            else
-            {
-                characterController.SetMotionMode(VrmCharacterBehaviour.MotionMode.Default);
-                _motionMode = VrmCharacterBehaviour.MotionMode.Default;
+            // }
+            // else
+            // {
+            //     characterController.SetMotionMode(VrmCharacterBehaviour.MotionMode.Default);
+            //     _motionMode = VrmCharacterBehaviour.MotionMode.Default;
                 
-                if (uiController) {
-                    uiController.enableRandomEmotion = false;
-                }
-            }
+            //     if (uiController) {
+            //         uiController.enableRandomEmotion = false;
+            //     }
+            // }
         }
-
-        ///// <summary>
-        ///// Load the motion from a BVH file.
-        ///// </summary>
-        ///// <param name="path"></param>
-        //private void LoadMotion(string path)
-        //{
-        //    if (!File.Exists(path))
-        //    {
-        //        Debug.Log("Motion " + path + " is not exits.");
-        //        return;
-        //    }
-
-        //    var characterController = model.GetComponent<VrmCharacterBehaviour>();
-        //    GameObject newMotionObject = null;
-
-        //    try
-        //    {
-        //        BvhImporterContext context = new BvhImporterContext();
-        //        //Debug.Log("Loading motion : " + path);
-
-        //        context.Parse(path);
-        //        context.Load();
-        //        newMotionObject = context.Root;
-
-        //        // Hide the motion model
-        //        Renderer renderer = newMotionObject.GetComponent<Renderer>();
-        //        if (renderer)
-        //        {
-        //            renderer.enabled = false;
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        if (uiController)
-        //        {
-        //            uiController.motionMode = VrmCharacterBehaviour.MotionMode.Default;
-        //            uiController.ShowWarning("Motion load failed.");
-        //        }
-
-        //        Debug.LogError("Failed loading " + path);
-        //        Debug.LogError(ex);
-        //        return;
-        //    }
-
-        //    if (newMotionObject)
-        //    {
-        //        if (motion)
-        //        {
-        //            GameObject.Destroy(motion.gameObject);
-        //        }
-
-        //        motion = newMotionObject.GetComponent<HumanPoseTransfer>();
-
-        //        // 読み込みが成功したら、モーションの選択肢はBVHとする
-        //        _motionMode = VrmCharacterBehaviour.MotionMode.Bvh;
-        //        SetMotion(motion, model, meta);
-
-        //        if (uiController)
-        //        {
-        //            uiController.motionMode = VrmCharacterBehaviour.MotionMode.Bvh;
-        //        }
-
-        //        // Play loaded audio if available
-        //        if (audioSource && audioSource.clip && audioSource.clip.loadState == AudioDataLoadState.Loaded)
-        //        {
-        //            audioSource.Stop();
-        //            audioSource.Play();
-        //        }
-        //    }
-        //}
 
         /// <summary>
         /// Unload the old model and load the new model from VRM file.
@@ -378,16 +308,31 @@ namespace Kirurobo
 
             try
             {
-                gltfInstance = await VrmUtility.LoadAsync(path, new RuntimeOnlyAwaitCaller(), null, new VrmUtility.MetaCallback(val => this.meta = val));
-                gltfInstance.EnableUpdateWhenOffscreen();
+                if (uiController) uiController.ShowLoading("Loading model...");
 
-                newModelObject = gltfInstance.Root;
+                vrmInstance = await Vrm10.LoadPathAsync(
+                    path: path,
+                    canLoadVrm0X: true,
+                    showMeshes: false,
+                    materialGenerator: new UrpVrm10MaterialDescriptorGenerator(),
+                    vrmMetaInformationCallback: uiController.MetaLoaded
+                    );
+                
+                // 読み込めたらロード中表示を消す
+                if (uiController) uiController.HideLoading();
 
-                gltfInstance.ShowMeshes();
+                newModelObject = vrmInstance.gameObject;
+
+                var instance = vrmInstance.GetComponent<RuntimeGltfInstance>();
+                instance.ShowMeshes();
+                instance.EnableUpdateWhenOffscreen();
             }
             catch (Exception ex)
             {
-                if (uiController) uiController.ShowWarning("Model load failed.");
+                if (uiController) {
+                    uiController.ShowLoading("Model load failed");
+                    uiController.ShowWarning("Model load failed.");
+                }
                 Debug.LogError("Failed loading " + path);
                 Debug.LogError(ex);
                 return;
@@ -411,7 +356,7 @@ namespace Kirurobo
 
                 if (uiController)
                 {
-                    uiController.Show(meta);
+                    uiController.Show();
 
                     if (characterController)
                     {
@@ -422,16 +367,6 @@ namespace Kirurobo
             }
         }
         
-        RuntimeGltfInstance LoadVrm(VRMData vrm)
-        {
-            using (var loader = new VRMImporterContext(vrm))
-            {
-                //var instance = await loader.LoadAsync();
-                var instance = loader.Load();
-                return instance;
-            }
-        }
-
         /// <summary>
         /// Add colliders
         /// </summary>
