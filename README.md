@@ -1,5 +1,7 @@
-# UniWinC_VRM
+# UniWinC VRM Viewer
 [UniWinC](https://github.com/kirurobo/UniWindowController) を用いた VRM viewer です。
+
+![Image](https://github.com/user-attachments/assets/e181395c-0825-441c-8688-a948a1fdadee)
 
 ## 特徴
 - UniWindowController (UniWinC) のサンプルとしてソースを公開しています。
