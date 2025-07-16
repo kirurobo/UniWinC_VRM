@@ -1,11 +1,11 @@
 {
   "dependencies": {
     "com.kirurobo.uniwinc": {
-      "version": "https://github.com/kirurobo/UniWindowController.git#upm",
+      "version": "https://github.com/kirurobo/UniWindowController.git#preview-upm",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "75b57c8e20ace458a00a9d7d53f45cd328da9c13"
+      "hash": "08590809f9da3bbc76ce76ae8c266f272742baca"
     },
     "com.unity.burst": {
       "version": "1.8.18",
@@ -170,17 +170,17 @@
         "com.unity.modules.imageconversion": "1.0.0",
         "com.unity.test-framework": "1.4.6"
       },
-      "hash": "0b5ea9bbc2a246cfc72175f0c750b35d5c4b660a"
+      "hash": "4fd18272e15b33ca1476e4191549c8c4bd77de0f"
     },
     "com.vrmc.univrm": {
       "version": "https://github.com/vrm-c/UniVRM.git?path=/Assets/VRM",
       "depth": 0,
       "source": "git",
       "dependencies": {
-        "com.vrmc.gltf": "0.129.1",
+        "com.vrmc.gltf": "0.129.3",
         "com.unity.ugui": "1.0.0"
       },
-      "hash": "0b5ea9bbc2a246cfc72175f0c750b35d5c4b660a"
+      "hash": "4fd18272e15b33ca1476e4191549c8c4bd77de0f"
     },
     "com.vrmc.vrm": {
       "version": "https://github.com/vrm-c/UniVRM.git?path=/Assets/VRM10",
@@ -188,9 +188,9 @@
       "source": "git",
       "dependencies": {
         "com.unity.timeline": "1.7.6",
-        "com.vrmc.gltf": "0.129.1"
+        "com.vrmc.gltf": "0.129.3"
       },
-      "hash": "0b5ea9bbc2a246cfc72175f0c750b35d5c4b660a"
+      "hash": "4fd18272e15b33ca1476e4191549c8c4bd77de0f"
     },
     "com.unity.modules.accessibility": {
       "version": "1.0.0",
